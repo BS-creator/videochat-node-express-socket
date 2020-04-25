@@ -1,0 +1,117 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #333;
+  overflow: hidden;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flex-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  flex-direction: column-reverse;
+  bottom: 80px;
+  position: absolute;
+  right: 0;
+  height: 80%;
+  align-content: flex-end;
+}
+
+.video-tile {
+  position: relative;
+  width: 160px;
+  height: 100px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ffffff;
+  overflow: hidden;
+  z-index: 99;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-right: 10px;
+  background-image: url(../images/nouser.png);
+  background-size: 50px 50px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* .video-tile video {
+} */
+
+.video-tile video:hover {
+  cursor: pointer;
+}
+
+.main-video-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../images/nouser.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.local-video-wrapper {
+  position: absolute;
+  width: 160px;
+  height: 100px;
+  top: 7px;
+  right: 7px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #FF9800;
+  overflow: hidden;
+  z-index: 99;
+  border-radius: 4px;
+  background: rgb(105, 102, 102);
+}
+
+#local_video:hover {
+  cursor: pointer;
+}
+
+.btnTools {
+  position: absolute;
+  bottom: 20px;
+  left: 0px;
+  right: 0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.btnTools div {
+  margin-right: 30px;
+  border-radius: 50%;
+}
+
+.btnTools .micToggle {
+  margin-right: 0px!important;
+}
+
+.videoMuteImg {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  z-index: 11;
+  font-size: 25px;
+}
+
+.display-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

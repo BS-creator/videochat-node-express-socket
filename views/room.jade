@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  div(class="main-video-wrapper")
+    video(id="main_video", class="animated zoomIn", autoplay="autoplay", muted="true", playsinline="")
+  
+  div(class="local-video-wrapper")
+    video(id="local_video", class="local_video", onclick='toggleMainVideo(this)', autoplay="autoplay", muted="true", playsinline="")
+    i(class="material-icons local_video videoMuteImg", style="display:none") videocam_off
+
+  div(id="remote_videos", class="flex-section")
+  
+  div(class="btnTools")
+    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle")
+      i(class="material-icons") videocam
+
+    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle", style="display:none")
+      i(class="material-icons") videocam_off
+
+    div(class="btn-floating btn-large waves-effect waves-light pink btn-call-end")
+      i(class="material-icons") call_end
+
+    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle")
+      i(class="material-icons") mic
+
+    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle", style="display:none")
+      i(class="material-icons") mic_off
+
+
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
+  script(src="https://cdn.socket.io/socket.io-1.4.5.js")
+  script(src="/javascripts/videochat.js")

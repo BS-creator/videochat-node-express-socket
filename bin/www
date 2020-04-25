@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('videochat-node:server');
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+/************ socket start *************/
+var channels = {};
+var sockets = {};
+
+io.sockets.on('connection', function (socket) {
+  socket.channels = {};
+  sockets[socket.id] = socket;
+
+  console.log("[" + socket.id + "] connection accepted");
+  socket.on('disconnect', function () {
+    for (var channel in socket.channels) {
+      part(channel);
+    }
+    console.log("[" + socket.id + "] disconnected");
+    delete sockets[socket.id];
+  });
+
+
+  socket.on('join', function (config) {
+    console.log("[" + socket.id + "] join ", config);
+    var channel = config.channel;
+    var userdata = config.userdata;
+
+    if (channel in socket.channels) {
+      console.log("[" + socket.id + "] ERROR: already joined ", channel);
+      return;
+    }
+
+    if (!(channel in channels)) {
+      channels[channel] = {};
+    }
+
+    for (id in channels[channel]) {
+      channels[channel][id].emit('addPeer', { 'peer_id': socket.id, 'should_create_offer': false });
+      socket.emit('addPeer', { 'peer_id': id, 'should_create_offer': true });
+    }
+
+    channels[channel][socket.id] = socket;
+    socket.channels[channel] = channel;
+  });
+
+  function part(channel) {
+    console.log("[" + socket.id + "] part ");
+
+    if (!(channel in socket.channels)) {
+      console.log("[" + socket.id + "] ERROR: not in ", channel);
+      return;
+    }
+
+    delete socket.channels[channel];
+    delete channels[channel][socket.id];
+
+    for (id in channels[channel]) {
+      channels[channel][id].emit('removePeer', { 'peer_id': socket.id });
+      socket.emit('removePeer', { 'peer_id': id });
+    }
+  }
+  socket.on('part', part);
+
+  socket.on('relayICECandidate', function (config) {
+    var peer_id = config.peer_id;
+    var ice_candidate = config.ice_candidate;
+    console.log("[" + socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
+
+    if (peer_id in sockets) {
+      sockets[peer_id].emit('iceCandidate', { 'peer_id': socket.id, 'ice_candidate': ice_candidate });
+    }
+  });
+
+  socket.on('relaySessionDescription', function (config) {
+    var peer_id = config.peer_id;
+    var session_description = config.session_description;
+    console.log("[" + socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
+
+    if (peer_id in sockets) {
+      sockets[peer_id].emit('sessionDescription', { 'peer_id': socket.id, 'session_description': session_description });
+    }
+  });
+});
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
