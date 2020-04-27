@@ -5,7 +5,7 @@ block content
     video(id="main_video", class="animated zoomIn", autoplay="autoplay", muted="true", playsinline="")
   
   div(class="local-video-wrapper")
-    video(id="local_video", class="local_video", onclick='VC.toggleMainVideo(this)', autoplay="autoplay", muted="true", playsinline="")
+    video(id="local_video", class="local_video", onclick='toggleMainVideo(this)', autoplay="autoplay", muted="true", playsinline="")
     i(class="material-icons local_video videoMuteImg display-none") videocam_off
 
   div(id="remote_videos", class="flex-section")
@@ -14,31 +14,32 @@ block content
 
 
   div(class="btnTools")
-    div(class="btn-floating btn-sm waves-effect waves-light blue gridToggle display-none")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue gridToggle display-none")
       i(class="material-icons") grid_off
+      span(class="tooltiptext") Tooltip text
       
-    div(class="btn-floating btn-sm waves-effect waves-light blue gridToggle")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue gridToggle")
       i(class="material-icons") grid_on
       
-    div(class="btn-floating btn-sm waves-effect waves-light blue screenShare")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue screenShare")
       i(class="material-icons") screen_share
       
-    div(class="btn-floating btn-sm waves-effect waves-light blue screenShare display-none")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue screenShare display-none")
       i(class="material-icons") stop_screen_share
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue videoToggle")
       i(class="material-icons") videocam
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle display-none")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue videoToggle display-none")
       i(class="material-icons") videocam_off
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue micToggle")
       i(class="material-icons") mic
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle display-none")
+    div(class="tooltip btn-floating btn-sm waves-effect waves-light blue micToggle display-none")
       i(class="material-icons") mic_off
 
-    div(class="btn-floating btn-large waves-effect waves-light pink btn-call-end")
+    div(class="tooltip btn-floating btn-large waves-effect waves-light pink btn-call-end")
       i(class="material-icons") call_end
 
 

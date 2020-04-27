@@ -1,6 +1,5 @@
 import { CONFIG } from './config.js'
 
-
 class VideoChat {
   constructor(initVals) {
     this.config = { initVals }
@@ -28,7 +27,7 @@ class VideoChat {
     $(".gridToggle").click(this.toggleGrid);
     $(".screenShare").click(this.toggleScreenShare);
     $(".btn-call-end").click(function () { window.location.href = "/" })
-
+    window.toggleMainVideo = this.toggleMainVideo;
 
     console.log("Init: Connecting to signaling server");
     this.signalingSocket = io(CONFIG.SIGNALING_SERVER);
@@ -233,7 +232,7 @@ class VideoChat {
 
   createVideoElement = (stream, peer_id) => {
     let videoWrapper = $("<div class='video-tile animated fadeInRight'></div>")
-    let videoEle = $("<video onclick='VC.toggleMainVideo(this)' peer_id='" + peer_id + "'>");
+    let videoEle = $("<video onclick='toggleMainVideo(this)' peer_id='" + peer_id + "'>");
     videoEle.attr("autoplay", "autoplay");
     videoEle.attr("playsinline", "");
     $(videoWrapper).append(videoEle);
@@ -244,7 +243,7 @@ class VideoChat {
 
   toggleMainVideo = (selfEle) => {
     let peer_id = $(selfEle).attr('peer_id');
-    that.MainVideoPeer = peer_id;
+    this.MainVideoPeer = peer_id;
     console.log(this.remoteStreams)
     console.log('toggleMainVideo', selfEle, $(selfEle).attr('peer_id'))
     if (peer_id) {
