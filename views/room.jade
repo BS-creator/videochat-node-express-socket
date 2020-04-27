@@ -5,28 +5,44 @@ block content
     video(id="main_video", class="animated zoomIn", autoplay="autoplay", muted="true", playsinline="")
   
   div(class="local-video-wrapper")
-    video(id="local_video", class="local_video", onclick='toggleMainVideo(this)', autoplay="autoplay", muted="true", playsinline="")
-    i(class="material-icons local_video videoMuteImg", style="display:none") videocam_off
+    video(id="local_video", class="local_video", onclick='VC.toggleMainVideo(this)', autoplay="autoplay", muted="true", playsinline="")
+    i(class="material-icons local_video videoMuteImg display-none") videocam_off
 
   div(id="remote_videos", class="flex-section")
-  
+    div(class='video-tile animated fadeInRight local-video-wrapper')
+      video(id="local_video_tile_view", class="local_video", autoplay="autoplay", muted="true", playsinline="")
+
+
   div(class="btnTools")
+    div(class="btn-floating btn-sm waves-effect waves-light blue gridToggle display-none")
+      i(class="material-icons") grid_off
+      
+    div(class="btn-floating btn-sm waves-effect waves-light blue gridToggle")
+      i(class="material-icons") grid_on
+      
+    div(class="btn-floating btn-sm waves-effect waves-light blue screenShare")
+      i(class="material-icons") screen_share
+      
+    div(class="btn-floating btn-sm waves-effect waves-light blue screenShare display-none")
+      i(class="material-icons") stop_screen_share
+
     div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle")
       i(class="material-icons") videocam
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle", style="display:none")
+    div(class="btn-floating btn-sm waves-effect waves-light blue videoToggle display-none")
       i(class="material-icons") videocam_off
-
-    div(class="btn-floating btn-large waves-effect waves-light pink btn-call-end")
-      i(class="material-icons") call_end
 
     div(class="btn-floating btn-sm waves-effect waves-light blue micToggle")
       i(class="material-icons") mic
 
-    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle", style="display:none")
+    div(class="btn-floating btn-sm waves-effect waves-light blue micToggle display-none")
       i(class="material-icons") mic_off
+
+    div(class="btn-floating btn-large waves-effect waves-light pink btn-call-end")
+      i(class="material-icons") call_end
 
 
   script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js")
   script(src="https://cdn.socket.io/socket.io-1.4.5.js")
-  script(src="/javascripts/videochat.js")
+  script(src="/javascripts/VideoChatClass.js", type="module")
+  //- script(src="/javascripts/videochat.js", type="module")
