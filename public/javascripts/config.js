@@ -1,8 +1,5 @@
 export const CONFIG = {
   SIGNALING_SERVER: "https://call.bemycall.com/",
-  USE_AUDIO: true,
-  USE_VIDEO: true,
-  MUTE_AUDIO_BY_DEFAULT: false,
   ICE_SERVERS: [
     { urls: ["stun:ws-turn2.xirsys.com"] },
     {
@@ -24,4 +21,5 @@ export const CONFIG = {
     },
     audio: false
   },
+  MUTE_AUDIO_BY_DEFAULT: false,
 }

@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 var RoomController = require('../controllers/rooms');
 
-/* POST: creating room. */
-router.post('/create_room', RoomController.createRoom);
+router.post('/get_room', RoomController.getRoom);
 
 router.get('/get_status', RoomController.getStatus);
 

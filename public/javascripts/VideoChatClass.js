@@ -2,18 +2,19 @@ import { CONFIG } from './config.js'
 
 class VideoChat {
   constructor(initVals) {
-    this.config = { initVals }
 
-    this.MainVideoPeer = 'null';
-    this.signalingSocket = null;
-    this.localMediaStream = null;
-    this.peers = {};
-    this.peerMediaElements = {};
-    this.remoteStreams = {};
-    this.cameraOn = true;
-    this.micOn = true;
-    this.screenShareOn = false;
-    this.sharedVideoStream = null;
+    this.config = {}                    // Stores chat config which from the database
+    this.MainVideoPeer = 'null';        // Peer of Big Video (main video)
+    this.signalingSocket = null;        // For signal socket
+    this.localMediaStream = null;       // Stores local media stream
+    this.peers = {};                    // Stores all the remote Peers
+    this.peerMediaElements = {};        // Stores all the remote video element DOM
+    this.remoteStreams = {};            // Stores all the remote media streams
+    this.cameraOn = true;               // Status of camera 
+    this.micOn = true;                  // Status of mic
+    this.screenShareOn = false;         // Status of screenshare
+    this.sharedVideoStream = null;      // Stores shared Stream
+    this.ServerURL = '';                // Stores Server URL. It same as self location . . .
 
     if (isMobile.any()) {
       $(".screenShare").hide();
@@ -21,19 +22,33 @@ class VideoChat {
     // this.init();
   }
 
-  init = () => {
+  init = async () => {
+    const that = this;  // it's for when used in signalingSocket.on 
+    this.ServerURL = window.location.protocol + "//" + window.location.hostname + "/room";
+
+    await $.post(this.ServerURL + "/get_room", { name: this.getRoomName() }, function (res) {
+      console.log(res)
+      that.config = res;
+    }, 'json');
+
+    if (!this.config.video) {
+      $(".videoToggle").addClass('disabled');
+    }
+    if (!this.config.audio) {
+      $(".micToggle").addClass('disabled');
+    }
+
     $(".videoToggle").click(this.toggleCamera);
     $(".micToggle").click(this.toggleMic);
     $(".gridToggle").click(this.toggleGrid);
     $(".screenShare").click(this.toggleScreenShare);
     $(".btn-call-end").click(function () { window.location.href = "/" })
-    window.toggleMainVideo = this.toggleMainVideo;
+    window.toggleMainVideo = this.toggleMainVideo;  // for toggle main video in html
+
 
     console.log("Init: Connecting to signaling server");
     this.signalingSocket = io(CONFIG.SIGNALING_SERVER);
     this.signalingSocket = io();
-
-    const that = this;  // it's for when used in signalingSocket.on 
 
     this.signalingSocket.on('connect', function () {
       console.log("Connected to signaling server");
@@ -67,7 +82,11 @@ class VideoChat {
     * connections in the network).
     */
     this.signalingSocket.on('addPeer', function (config) {
-      console.log('Signaling server said to add peer:', config);
+      console.log('Signaling server said to add peer:', config, that.peers);
+      // if (Object.keys(that.peers).length == that.config.max_user) {
+      //   alert("room is full")
+      //   return;
+      // }
       let peer_id = config.peer_id;
       if (peer_id in that.peers) {
         /* This could happen if the user joins multiple channels where the other peer is also in. */
@@ -355,10 +374,10 @@ class VideoChat {
             audio_exist = true;
           }
         });
-
+        console.log(this.config)
         let constraints = {
-          "audio": audio_exist,
-          "video": video_exist,
+          "audio": this.config.audio ? (audio_exist ? true : false) : false,
+          "video": this.config.video ? (video_exist ? true : false) : false,
         }
         return constraints;
       }).then(constraints => {
@@ -374,7 +393,7 @@ class VideoChat {
           })
           .catch((e) => { /* user denied access to a/v */
             console.log("Access denied for audio/video");
-            alert("You chose not to provide access to the camera/microphone, demo will not work.");
+            alert("You chose not to provide access to the camera/microphone");
             if (errorback) errorback();
           });
 

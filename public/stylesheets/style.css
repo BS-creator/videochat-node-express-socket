@@ -117,6 +117,7 @@ video {
 
 .main-video-wrapper video {
   border: none;
+  border-radius: initial;
 }
 
 .local-video-wrapper {
@@ -197,4 +198,8 @@ video {
 
 .display-none {
   display: none;
+}
+
+.btn-floating.disabled {
+  background-color: #9E9E9E !important;
 }
