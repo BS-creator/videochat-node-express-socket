@@ -7,12 +7,16 @@
 var app = require('../app');
 var debug = require('debug')('videochat-node:server');
 var http = require('http');
+var mongoose = require('mongoose');
+require('dotenv').config();
+
+var RoomUserController = require('../controllers/roomUsers');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.APP_PORT || '3000');
 app.set('port', port);
 
 /**
@@ -25,14 +29,17 @@ var io = require('socket.io').listen(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
+mongoose.connect(process.env.DB_HOST, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, (err) => {
+  if (err) throw err;
+  console.log("DB Connected Successfully");
+})
 
-server.listen(port);
+server.listen(port, () => { console.log(`Listening on port ${port}`) });
 server.on('error', onError);
 server.on('listening', onListening);
 
-
 /************ socket start *************/
-var channels = {};
+var channels = require('../global/channels');
 var sockets = {};
 
 io.sockets.on('connection', function (socket) {
@@ -52,7 +59,21 @@ io.sockets.on('connection', function (socket) {
   socket.on('join', function (config) {
     console.log("[" + socket.id + "] join ", config);
     var channel = config.channel;
-    var userdata = config.userdata;
+    var userData = config.userData;
+    console.log(channels, channel)
+    if ((channel in channels) && userData.maxUser <= Object.keys(channels[channel]).length) {
+      console.log('check max user:', (channel in channels), (userData.maxUser <= Object.keys(channels[channel]).length), Object.keys(channels[channel]).length)
+      socket.emit('fullRoom', { max: userData.maxUser })
+      console.log("ERROR: This room is already full now")
+      return;
+    }
+    var userData = {
+      userId: socket.id,
+      roomHash: userData._id,
+      maxUsersOnline: userData.maxUsersOnline,
+      usersOnline: userData.usersOnline,
+    };
+    RoomUserController.createRoomUser(userData)  // save to db
 
     if (channel in socket.channels) {
       console.log("[" + socket.id + "] ERROR: already joined ", channel);
@@ -80,6 +101,9 @@ io.sockets.on('connection', function (socket) {
       return;
     }
 
+    var info = { userId: socket.id, leavedAt: new Date() }
+    RoomUserController.updateRoomUser(info) // update and calculate usedTime of chat...
+
     delete socket.channels[channel];
     delete channels[channel][socket.id];
 
@@ -93,7 +117,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('relayICECandidate', function (config) {
     var peer_id = config.peer_id;
     var ice_candidate = config.ice_candidate;
-    console.log("[" + socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
+    // console.log("[" + socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
 
     if (peer_id in sockets) {
       sockets[peer_id].emit('iceCandidate', { 'peer_id': socket.id, 'ice_candidate': ice_candidate });
@@ -103,7 +127,7 @@ io.sockets.on('connection', function (socket) {
   socket.on('relaySessionDescription', function (config) {
     var peer_id = config.peer_id;
     var session_description = config.session_description;
-    console.log("[" + socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
+    // console.log("[" + socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
 
     if (peer_id in sockets) {
       sockets[peer_id].emit('sessionDescription', { 'peer_id': socket.id, 'session_description': session_description });
@@ -113,7 +137,7 @@ io.sockets.on('connection', function (socket) {
 
 /**
  * Normalize a port into a number, string, or false.
- */
+**/
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
@@ -170,3 +194,6 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+module.exports = channels;

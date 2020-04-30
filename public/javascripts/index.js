@@ -1,13 +1,3 @@
-function go_call(call_type) {
-  let type = "v";
-  if (call_type == 'audio') {
-    type = "a";
-  } else if (call_type == 'message') {
-    type = "m"
-  }
-  window.location.href = "/r/" + generate_room_name() + type;
-}
-
 function generate_room_name(length) {
   length = 10;
   var result = '';
@@ -27,3 +17,20 @@ function generate_room_name(length) {
 function init() {
 
 }
+
+$(document).ready(function () {
+  var ls = localStorage.getItem('whenRoomClosed')
+  console.log(ls)
+  if (ls) {
+    var data = JSON.parse(ls)
+    console.log(data)
+    $("#display").html(data.display);
+    if (data.isHost) {
+      $("#callToAction").attr('href', data.buttonCallToActionHost)
+      $("#btnname").html("buttonCallToActionHost")
+    } else {
+      $("#btnname").html("buttonCallToActionGuest")
+      $("#callToAction").attr('href', data.buttonCallToActionGuest)
+    }
+  }
+})

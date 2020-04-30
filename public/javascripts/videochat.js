@@ -1,18 +1,22 @@
+import { hello } from './config.js'
+console.log(hello());
+
+
 /** CONFIG **/
-var self_url = window.location.href;
-var segs = self_url.split("/");
-var roomname = segs[segs.length - 1];
+let self_url = window.location.href;
+let segs = self_url.split("/");
+let roomname = segs[segs.length - 1];
 console.log(roomname)
 
-var SIGNALING_SERVER = "https://videochat-signalhub.s-t-r-i-v-e.com/";
-// var SIGNALING_SERVER = "http://localhost";
-var USE_AUDIO = true;
-var USE_VIDEO = true;
-var ROOM_NAME = roomname;
-var MUTE_AUDIO_BY_DEFAULT = false;
-var MainVideoPeer = null;
+let SIGNALING_SERVER = "https://call.bemycall.com/";
+// let SIGNALING_SERVER = "http://localhost";
+let USE_AUDIO = true;
+let USE_VIDEO = true;
+let ROOM_NAME = roomname;
+let MUTE_AUDIO_BY_DEFAULT = false;
+let MainVideoPeer = null;
 /** stun / turn server **/
-var ICE_SERVERS = [
+const ICE_SERVERS = [
   { urls: ["stun:ws-turn2.xirsys.com"] },
   {
     username: "FtejCUFBllhaRc2b8yFrgYZXcKZQKJOmcRWBIXeWy-CUl2DIlvY7QjUgDGh_PLsTAAAAAF6j9W9iZW15Y2FsbA==",
@@ -28,17 +32,17 @@ var ICE_SERVERS = [
   }
 ]
 
-var signaling_socket = null;   /* our socket.io connection to our webserver */
-var local_media_stream = null; /* our own microphone / webcam */
-var peers = {};                /* keep track of our peer connections, indexed by peer_id (aka socket.io id) */
-var peer_media_elements = {};  /* keep track of our <video>/<audio> tags, indexed by peer_id */
-var remoteStreams = {};
+let signaling_socket = null;   /* our socket.io connection to our webserver */
+let local_media_stream = null; /* our own microphone / webcam */
+let peers = {};                /* keep track of our peer connections, indexed by peer_id (aka socket.io id) */
+let peer_media_elements = {};  /* keep track of our <video>/<audio> tags, indexed by peer_id */
+let remoteStreams = {};
 
-function init() {
+init = function init() {
 
-  RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
-  RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
-  navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
+  // RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
+  // RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
+  // navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.msGetUserMedia;
 
   console.log("Connecting to signaling server");
   signaling_socket = io(SIGNALING_SERVER);
@@ -84,13 +88,13 @@ function init() {
   */
   signaling_socket.on('addPeer', function (config) {
     console.log('Signaling server said to add peer:', config);
-    var peer_id = config.peer_id;
+    let peer_id = config.peer_id;
     if (peer_id in peers) {
       /* This could happen if the user joins multiple channels where the other peer is also in. */
       console.log("Already connected to peer ", peer_id);
       return;
     }
-    var peer_connection = new RTCPeerConnection(
+    let peer_connection = new RTCPeerConnection(
       { "iceServers": ICE_SERVERS },
       { "optional": [{ "DtlsSrtpKeyAgreement": true }] } /* this will no longer be needed by chrome
                                                                         * eventually (supposedly), but is necessary
@@ -111,7 +115,7 @@ function init() {
     }
     // peer_connection.onaddstream = function (event) {
     //   console.log("onAddStream", event);
-    //   var remote_media_ele = createVideoElement(event.stream, peer_id)
+    //   let remote_media_ele = createVideoElement(event.stream, peer_id)
     //   peer_media_elements[peer_id] = remote_media_ele;
     //   remoteStreams[peer_id] = event.stream;
     //   if (Object.keys(remoteStreams).length == 1) {
@@ -121,9 +125,9 @@ function init() {
 
     peer_connection.ontrack = function (event) {
       console.log('ontrack', peer_id, event)
-      var remoteStream = event.streams[0];
+      let remoteStream = event.streams[0];
       if (!(peer_media_elements.hasOwnProperty(peer_id))) {
-        var remote_media_ele = createVideoElement(remoteStream, peer_id)
+        let remote_media_ele = createVideoElement(remoteStream, peer_id)
         peer_media_elements[peer_id] = remote_media_ele;
       }
       remoteStreams[peer_id] = remoteStream;
@@ -172,13 +176,13 @@ function init() {
    */
   signaling_socket.on('sessionDescription', function (config) {
     console.log('Remote description received: ', config);
-    var peer_id = config.peer_id;
-    var peer = peers[peer_id];
-    var remote_description = config.session_description;
+    let peer_id = config.peer_id;
+    let peer = peers[peer_id];
+    let remote_description = config.session_description;
     console.log(config.session_description);
 
-    var desc = new RTCSessionDescription(remote_description);
-    var stuff = peer.setRemoteDescription(desc,
+    let desc = new RTCSessionDescription(remote_description);
+    let stuff = peer.setRemoteDescription(desc,
       function () {
         console.log("setRemoteDescription succeeded");
         if (remote_description.type == "offer") {
@@ -210,8 +214,8 @@ function init() {
    * can begin trying to find the best path to one another on the net.
    */
   signaling_socket.on('iceCandidate', function (config) {
-    var peer = peers[config.peer_id];
-    var ice_candidate = config.ice_candidate;
+    let peer = peers[config.peer_id];
+    let ice_candidate = config.ice_candidate;
     peer.addIceCandidate(new RTCIceCandidate(ice_candidate));
   });
 
@@ -228,7 +232,7 @@ function init() {
    */
   signaling_socket.on('removePeer', function (config) {
     console.log('Signaling server said to remove peer:', config);
-    var peer_id = config.peer_id;
+    let peer_id = config.peer_id;
     if (peer_id in peer_media_elements) {
       peer_media_elements[peer_id].remove();
     }
@@ -252,13 +256,13 @@ function init() {
 /***********************/
 /** Common stuff **/
 /***********************/
-attachMediaStream = function (element, stream) {
+let attachMediaStream = function (element, stream) {
   element.srcObject = stream;
 };
 
-createVideoElement = function (stream, peer_id) {
-  var videoWrapper = $("<div class='video-tile animated fadeInRight'></div>")
-  var videoEle = $("<video onclick='toggleMainVideo(this)' peer_id='" + peer_id + "'>");
+let createVideoElement = function (stream, peer_id) {
+  let videoWrapper = $("<div class='video-tile animated fadeInRight'></div>")
+  let videoEle = $("<video onclick='toggleMainVideo(this)' peer_id='" + peer_id + "'>");
   videoEle.attr("autoplay", "autoplay");
   videoEle.attr("playsinline", "");
   $(videoWrapper).append(videoEle);
@@ -267,8 +271,8 @@ createVideoElement = function (stream, peer_id) {
   return videoWrapper;
 }
 
-toggleMainVideo = function (selfEle) {
-  var peer_id = $(selfEle).attr('peer_id');
+let toggleMainVideo = function (selfEle) {
+  let peer_id = $(selfEle).attr('peer_id');
   MainVideoPeer = peer_id;
   console.log(remoteStreams)
   console.log('toggleMainVideo', selfEle, $(selfEle).attr('peer_id'))
@@ -281,36 +285,36 @@ toggleMainVideo = function (selfEle) {
   }
 }
 
-toggleCamera = function () {
+let toggleCamera = function () {
   $(".videoToggle").toggle()
   $(".local_video").toggle()
-  var videoTracks = local_media_stream.getVideoTracks();
+  let videoTracks = local_media_stream.getVideoTracks();
   if (videoTracks.length === 0) {
     console.log("No local video available.");
     return;
   }
   console.log("Toggling video mute state.");
-  for (var i = 0; i < videoTracks.length; ++i) {
+  for (let i = 0; i < videoTracks.length; ++i) {
     videoTracks[i].enabled = !cameraOn;
   }
   cameraOn = !cameraOn;
 }
 
-toggleMic = function () {
+let toggleMic = function () {
   $(".micToggle").toggle()
-  var audioTracks = local_media_stream.getAudioTracks();
+  let audioTracks = local_media_stream.getAudioTracks();
   if (audioTracks.length === 0) {
     console.log("No local audio available.");
     return;
   }
   console.log("Toggling audio mute state.");
-  for (var i = 0; i < audioTracks.length; ++i) {
+  for (let i = 0; i < audioTracks.length; ++i) {
     audioTracks[i].enabled = !micOn;
   }
   micOn = !micOn;
 }
-var cameraOn = true;
-var micOn = true;
+let cameraOn = true;
+let micOn = true;
 $(".videoToggle").click(toggleCamera)
 $(".micToggle").click(toggleMic)
 $(".btn-call-end").click(function () { window.location.href = "/" })
@@ -327,15 +331,9 @@ function setup_local_media(callback, errorback) {
    * attach it to an <audio> or <video> tag if they give us access. */
   console.log("Requesting access to local audio / video inputs");
 
-
-  navigator.getUserMedia = (navigator.getUserMedia ||
-    navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia ||
-    navigator.msGetUserMedia);
-
   // check if the video and audio devices exist or not
-  var video_exist = false;
-  var audio_exist = false;
+  let video_exist = false;
+  let audio_exist = false;
   navigator.mediaDevices.enumerateDevices()
     .then(devices => {
       devices.forEach(function (device) {
@@ -349,7 +347,7 @@ function setup_local_media(callback, errorback) {
         }
       });
 
-      var constraints = {
+      let constraints = {
         "audio": audio_exist,
         "video": video_exist,
       }

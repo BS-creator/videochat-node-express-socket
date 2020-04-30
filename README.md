@@ -1,2 +1,5 @@
 # videochat-node-express-socket
-I used node.js, express.js, socket, websocket, material design, 
+Express default Project Structure
+I added some folders and change structure a little
+
+To run: 'npm install && npm start'
