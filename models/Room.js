@@ -1,49 +1,100 @@
 var mongoose = require('mongoose');
+
+// roomHash = Schema.Types.ObjectId of this schema
+// roomID, audio, video, screenshare, roomType, private, privateCode, 
+// maxUser, usersOnline, maxUsersOnline, totalUsedSeconds, roomStatus, 
+// hearbeat, hearbeatUrl, watermarkUrl, returnParam, createdAt, closedAt
 const roomSchema = new mongoose.Schema({
-  name: {
+  roomID: {
     type: String,
     unique: true,
-    required: true,
-  },
-  type: {
-    type: String,
-    default: 'conference',
-  },
-  video: {
-    type: Boolean,
     required: true,
   },
   audio: {
     type: Boolean,
     required: true,
   },
-  current_users: {
-    type: Number,
-    default: 0,
+  video: {
+    type: Boolean,
+    required: true,
   },
-  max_user: {
+  screenshare: {
+    type: Boolean,
+    required: true,
+  },
+  roomType: {
+    type: String,
+    default: 'conference',
+  },
+  private: {
+    type: Boolean,
+    default: false,
+  },
+  privateCode: {
+    type: String
+  },
+  maxUser: {
     type: Number,
     required: true,
   },
-  used_time: {
-    type: Date,
-    default: null
+  usersOnline: {
+    type: Number,
+    default: 0,
   },
-  created_at: {
+  maxUsersOnline: {
+    type: Number,
+    default: 0,
+  },
+  totalUsedSeconds: {
+    type: Number,
+    default: 0,
+  },
+  roomStatus: {
+    type: String,
+    default: 'active',
+  },
+  hearbeat: {
+    type: Boolean,
+  },
+  hearbeatUrl: {
+    type: String,
+  },
+  watermarkUrl: {
+    type: String,
+  },
+  returnParam: [mongoose.Schema.Types.Mixed],
+
+  hostGuest: {
+    type: String
+  },
+  createdAt: {
     type: Date,
     default: Date.now
   },
+  closedAt: {
+    type: Date,
+    default: null
+  },
+  roomusers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RoomUser"
+    }
+  ]
+
 });
 
-roomSchema.statics.findByName = async function (name) {
-  let room = await this.findOne({
-    name: name,
-  });
+roomSchema.statics.findByRoomID = async function (roomID) {
+  let room = await this.findOne({ roomID });
   if (!room) {
     return false;
   }
   return room;
 };
+
+roomSchema.pre('remove', function (next) {
+  this.model('RoomUser').deleteMany({ user: this._id }, next);
+});
 
 const Room = mongoose.model('Room', roomSchema);
 

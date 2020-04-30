@@ -24,12 +24,17 @@ class VideoChat {
 
   init = async () => {
     const that = this;  // it's for when used in signalingSocket.on 
-    this.ServerURL = window.location.protocol + "//" + window.location.hostname + "/room";
+    // this.ServerURL = window.location.protocol + "//" + window.location.hostname + ":3000/room";
+    this.ServerURL = "https://call.bemycall.com/room";
 
-    await $.post(this.ServerURL + "/get_room", { name: this.getRoomName() }, function (res) {
-      console.log(res)
-      that.config = res;
-    }, 'json');
+    await $.post(this.ServerURL + "/get_room", { roomID: this.getRoomName() },
+      function (res) {
+        that.config = res;
+      }, 'json')
+      .fail(function (err) {
+        console.log(err)
+        alert(err.responseJSON.message)
+      });
 
     if (!this.config.video) {
       $(".videoToggle").addClass('disabled');
@@ -37,12 +42,17 @@ class VideoChat {
     if (!this.config.audio) {
       $(".micToggle").addClass('disabled');
     }
+    if (!this.config.screenshare) {
+      $(".screenShare").addClass('disabled');
+    }
 
-    $(".videoToggle").click(this.toggleCamera);
+    // this.toggleGrid();  // i'd like to see toggle view when developing because it's smaller
     $(".micToggle").click(this.toggleMic);
     $(".gridToggle").click(this.toggleGrid);
+    $(".videoToggle").click(this.toggleCamera);
     $(".screenShare").click(this.toggleScreenShare);
     $(".btn-call-end").click(function () { window.location.href = "/" })
+    $(".modal-backdrop").click(function () { $("#messageModal").modal('hide') })
     window.toggleMainVideo = this.toggleMainVideo;  // for toggle main video in html
 
 
@@ -55,7 +65,7 @@ class VideoChat {
       that.setup_local_media(function () {
         /* once the user has given us access to their
          * microphone/camcorder, join the channel and start peering up */
-        that.join_chat_channel(that.getRoomName(), { 'whatever-you-want-here': 'stuff' });
+        that.join_chat_channel(that.getRoomName(), that.config);
       });
     });
 
@@ -74,6 +84,53 @@ class VideoChat {
       that.peerMediaElements = {};
       that.remoteStreams = {};
     });
+
+    /** When the room is full */
+    this.signalingSocket.on('fullRoom', function (data) {
+      let maxUser = data.maxUser;
+      alert("Excuse me, the room you tried is full now!")
+      window.location.href = "/"
+    })
+
+    /** When the room is closed */
+    this.signalingSocket.on('roomClosed', function (data) {
+      console.log(data);
+      if (that.checkHost() && data.forceForwardHost) {
+        window.location.href = data.forceForwardHost
+      } else if (!that.checkHost() && data.forceForwardGuest) {
+        window.location.href = data.forceForwardGuest
+      } else {
+        data.isHost = that.checkHost();
+        window.localStorage.setItem('whenRoomClosed', JSON.stringify(data));
+        window.location.href = "/";
+      }
+    })
+
+    /** When the play media is received */
+    this.signalingSocket.on('playReceived', function (data) {
+      console.log(data);
+      var media;
+      if (that.checkHost()) {
+        media = data.playHost
+      } else {
+        media = data.playGuest
+      }
+      $("body").append("<audio autoplay><source src='" + media + "'></audio>")
+    })
+
+    /** When the text is received from ... */
+    this.signalingSocket.on('textReceived', function (data) {
+      console.log(data);
+      var txt = '';
+      if (that.checkHost()) {
+        txt = data.displayHost
+      } else {
+        txt = data.displayGuest
+      }
+      var toast = new iqwerty.toast.Toast();
+      toast.setText(txt).setDuration(eval(data.seconds) * 1000).show();
+
+    })
 
     /**
     * When we join a group, our signaling server will send out 'addPeer' events to each pair
@@ -237,8 +294,8 @@ class VideoChat {
     });
   }
 
-  join_chat_channel = (channel, userdata) => {
-    this.signalingSocket.emit('join', { "channel": channel, "userdata": userdata });
+  join_chat_channel = (channel, userData) => {
+    this.signalingSocket.emit('join', { "channel": channel, "userData": userData });
   }
 
   part_chat_channel = (channel) => {
@@ -400,9 +457,20 @@ class VideoChat {
       })
   }
 
-  getRoomName = () => {
+  getRoomName = (checkHost) => {
+    if (checkHost == undefined) checkHost = false;
+
     let segs = (window.location.href).split("/");
-    return segs[segs.length - 1];
+    let commonSeg = segs[segs.length - 1].split("-")
+    console.log(commonSeg[0])
+    if (checkHost) {
+      return commonSeg[1]
+    }
+    return commonSeg[0];
+  }
+
+  checkHost = () => {
+    return (this.config.hostGuest == this.getRoomName(true))
   }
 
 }
@@ -430,3 +498,7 @@ var isMobile = {
 
 const VC = new VideoChat();
 VC.init();
+
+$(document).ready(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});

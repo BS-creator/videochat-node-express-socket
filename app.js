@@ -21,9 +21,21 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(cors({
-  origin: 'http://localhost:3333'
-}))
+// var whitelist = ['http://localhost:3333', 'http://localhost:3000', 'http://localhost:3232']
+// var corsOptions = {
+//   origin: function (origin, callback) {
+//     if (whitelist.indexOf(origin) !== -1) {
+//       callback(null, true)
+//     } else {
+//       callback(new Error('Not allowed by CORS'))
+//     }
+//   }
+// }
+// app.use(cors(corsOptions))
+// {
+//   origin: 'http://localhost:3232'
+// }
+app.use(cors())
 
 app.use('/', indexRouter);
 app.use('/room', roomRouter);

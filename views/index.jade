@@ -1,8 +1,9 @@
 extends layout
 
 block content
-  a(class="waves-effect waves-light btn-large blue display-center", onclick="go_call()")
+  h3(id="display", style="color: white; text-align: center;margin-top:15%;font-size:20px")
+  a(class="waves-effect waves-light btn-large blue display-center", id="callToAction", style="text-transform: initial;color: white;width: 50%;")
     i(class="material-icons left") videocam
-    span Start Video Chat
+    span(id="btnname") buttonCallToAction
 
   script(src="/javascripts/index.js")

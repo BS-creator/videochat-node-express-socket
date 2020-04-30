@@ -2,9 +2,20 @@ var express = require('express');
 var router = express.Router();
 var RoomController = require('../controllers/rooms');
 
-/* POST: creating room. */
-router.post('/create_room', RoomController.createRoom);
+/* POST: CREATE ROOM. */
+router.post('/createroom', RoomController.createRoom);
 
-router.get('/get_status', RoomController.getStatus);
+/* POST: CLOSE ROOM. */
+router.post('/closeroom', RoomController.closeRoom);
+
+/* POST: CLOSE ROOM. */
+router.post('/texttoroom', RoomController.textToRoom);
+
+/* POST: CLOSE ROOM. */
+router.post('/playtoroom', RoomController.playToRoom);
+
+/* POST: CLOSE ROOM. */
+router.post('/status', RoomController.status);
+
 
 module.exports = router;

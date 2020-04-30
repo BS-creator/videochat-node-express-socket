@@ -203,3 +203,8 @@ video {
 .btn-floating.disabled {
   background-color: #9E9E9E !important;
 }
+
+#messageModal {
+  background: transparent;
+  box-shadow: none;
+}

@@ -1,3 +1,5 @@
 var Room = require('./Room');
-const models = { Room };
-module.exports = Room;
+var RoomUser = require('./RoomUser');
+
+var models = { Room, RoomUser }
+module.exports = models;
