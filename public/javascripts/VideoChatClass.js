@@ -24,8 +24,8 @@ class VideoChat {
 
   init = async () => {
     const that = this;  // it's for when used in signalingSocket.on 
-    // this.ServerURL = window.location.protocol + "//" + window.location.hostname + ":3000/room";
-    this.ServerURL = "https://call.bemycall.com/room";
+    this.ServerURL = "http://localhost:3000/room";
+    // this.ServerURL = "https://call.bemycall.com/room";
 
     await $.post(this.ServerURL + "/get_room", { roomID: this.getRoomName() },
       function (res) {

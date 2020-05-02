@@ -1,7 +1,10 @@
 var Models = require('../models');
 var Room = Models.Room;
 var Roomuser = Models.RoomUser;
+require('dotenv').config();
 var channels = require('../global/channels');
+
+// CREATE ROOM: /createroom
 exports.createRoom = function (req, res) {
   console.log(req.body)
   let userData = req.body;
@@ -34,6 +37,7 @@ exports.createRoom = function (req, res) {
     })
 };
 
+// GET ROOM: /get_room 
 exports.getRoom = function (req, res) {
   var room_id = req.body.roomID;
   console.log(room_id)
@@ -50,8 +54,12 @@ exports.getRoom = function (req, res) {
   })
 };
 
+// CLOSE ROOM: /closeroom
 exports.closeRoom = async function (req, res) {
   var data = req.body;
+
+  if (!checkRoomHash(data.roomID, data.roomHash)) res.status(406).send({ message: "Invalid RoomHash" })
+
   await Room.findOneAndUpdate({ _id: data.roomHash }, { closedAt: Date.now(), roomStatus: 'closed' }, { new: true })
   console.log('closeRoom', data, channels)
   for (id in channels[data.roomID]) {
@@ -60,8 +68,11 @@ exports.closeRoom = async function (req, res) {
   res.status(200).send({ status: 200, roomID: data.roomID, roomStatus: 'closed' });
 };
 
+// SEND TEST TO ROOM: /texttoroom
 exports.textToRoom = function (req, res) {
   var data = req.body;
+  if (!checkRoomHash(data.roomID, data.roomHash)) res.status(406).send({ message: "Invalid RoomHash" })
+
   console.log('textToRoom', data, channels)
   for (id in channels[data.roomID]) {
     channels[data.roomID][id].emit('textReceived', data);
@@ -69,8 +80,12 @@ exports.textToRoom = function (req, res) {
   res.status(200).send({ status: 200, roomID: data.roomID });
 };
 
+// SEND MEDIA TO ROOM: /playtoroom
 exports.playToRoom = function (req, res) {
   var data = req.body;
+
+  if (!checkRoomHash(data.roomID, data.roomHash)) res.status(406).send({ message: "Invalid RoomHash" })
+
   console.log('playToRoom', data, channels)
   for (id in channels[data.roomID]) {
     channels[data.roomID][id].emit('playReceived', data);
@@ -78,19 +93,28 @@ exports.playToRoom = function (req, res) {
   res.status(200).send({ status: 200, roomID: data.roomID });
 };
 
-exports.status = async function (req, res) {
+// GET STATUS OF A ROOM: /status
+exports.statusOfRoom = async function (req, res) {
   var data = req.body;
+
+  if (!checkRoomHash(data.roomID, data.roomHash)) res.status(406).send({ message: "Invalid RoomHash" })
+
   var room = await Room.findById(data.roomHash);
   var roomusers = await Roomuser.find({ roomHash: room._id });
   console.log('room', roomusers)
   var totalUsedSeconds = room.totalUsedSeconds;
+  var resUsers = [];
   roomusers.forEach(user => {
-    if (!(user.closedAt)) {
+    var temp = { ...user }
+    var user = temp._doc
+    console.log(user)
+    if (user.leavedAt == undefined) {
       var joinedAt = user.joinedAt
       var leavedAt = new Date();
       user.usedSeconds = Math.abs((leavedAt.getTime() - joinedAt.getTime()) / 1000);
       totalUsedSeconds += user.usedSeconds;
     }
+    resUsers.push(user)
   });
   var resData = {
     roomID: room.roomID,
@@ -103,15 +127,114 @@ exports.status = async function (req, res) {
     screenshare: room.screenshare,
     createdAt: room.createdAt,
     roomStatus: room.roomStatus,
-    roomusers: roomusers,
+    roomusers: resUsers,
+    roomHost: "https://call.bemycall.com/r/" + room.roomID + "-" + room.hostGuest,
+    roomGuest: "https://call.bemycall.com/r/" + room.roomID + "-" + room.hostGuest.split("").reverse().join(""),
   }
   console.log('resData', resData)
   res.status(200).send(resData);
 };
 
+// GET STATUS OF ALL THE ONLINE ROOM: /intern/rooms
+exports.statusOfAllRoom = async function (req, res) {
+  console.log("statusOfAllRoom", process.env.INTERN_KEY)
+  if (checkInternKey(req.body.key)) {
+    var rooms = await Room.find({ closedAt: null })
+    var resData = [];
+    rooms.forEach(async (item) => {
+      var temp = { ...item }
+      var room = temp._doc
+      room.roomHash = room._id;
+      delete room._id;
+      delete room.returnParam;
+      delete room.roomusers;
+      room.users = await Roomuser.find({ roomHash: room.roomHash, leavedAt: undefined });
+      // console.log('rooms', room)
+      resData.push(room)
+    });
+    wait(1500).then(() => {
+      console.log('sent')
+      res.status(200).send(resData)
+    })
+  } else {
+    res.status(500).send("Error: Invalid Key")
+  }
+}
+
+// GET ALL THE ONLINE USERS: /intern/users
+exports.getUsersOnline = async function (req, res) {
+  var data = req.body;
+  if (checkInternKey(req.body.key)) {
+    var users = await Roomuser.find({ leavedAt: undefined });
+    var resUsers = [];
+    users.forEach(item => {
+      var temp = { ...item }
+      var user = temp._doc;
+      var joinedAt = user.joinedAt
+      var leavedAt = new Date();
+      user.usedSeconds = Math.abs((leavedAt.getTime() - joinedAt.getTime()) / 1000);
+      resUsers.push(user)
+    });
+    res.status(200).send(resUsers)
+  }
+}
+
+// GET STATS BETWEEN FROM AND TO: /intern/stats
+exports.getStats = async function (req, res) {
+
+  // Maybe you need to count usedSeconds for online users here again . . .
+  var data = req.body;
+  console.log(data)
+  var from = new Date(new Date(data.from).toISOString());
+  var to = new Date(new Date(data.to).toISOString());
+  console.log('from, to', from, to)
+  if (checkInternKey(req.body.key)) {
+    var rooms = await Room.find({ createdAt: { $gte: from, $lte: to } });
+    var users = await Roomuser.find({ joinedAt: { $gte: from, $lte: to } });
+    var audioRooms = await Room.find({ createdAt: { $gte: from, $lte: to }, video: false });
+    var usedSeconds = await Room.aggregate(
+      [{
+        $match: {
+          createdAt: { $gte: from, $lte: to }
+        }
+      },
+      {
+        $group: {
+          _id: 1,
+          amount: { $sum: "$totalUsedSeconds" }
+        }
+      }]
+    )
+    console.log('stats', usedSeconds)
+    var resData = {
+      usersTotal: users.length,
+      roomsTotla: rooms.length,
+      videoRooms: rooms.length - audioRooms.length,
+      audioRooms: audioRooms.length,
+      usedSeconds: usedSeconds[0].amount,
+    }
+    res.status(200).send(resData)
+  }
+}
+
+const checkRoomHash = async (roomID, roomHash) => {
+  const roomLength = await Room.find({ roomID, _id: roomHash }).count();
+  console.log('checkroomhash', roomLength)
+  if (roomLength != 0) {
+    return true
+  }
+  return false;
+}
 
 const generateRandomStr = (stringLength) => {
   const randomstring = require('randomstring')
-
   return (randomstring.generate(stringLength))
+}
+
+const checkInternKey = (key) => {
+  return (process.env.INTERN_KEY === key)
+}
+
+const wait = (delayInMS) => {
+  return new Promise(resolve => setTimeout(resolve, delayInMS));
 }
