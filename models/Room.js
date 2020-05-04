@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 // roomHash = Schema.Types.ObjectId of this schema
-// roomID, audio, video, screenshare, roomType, private, privateCode, 
+// roomID, audio, video, screenshare, roomType, private, privateCode, privateText,
 // maxUser, usersOnline, maxUsersOnline, totalUsedSeconds, roomStatus, 
 // hearbeat, hearbeatUrl, watermarkUrl, returnParam, createdAt, closedAt
 const roomSchema = new mongoose.Schema({
@@ -31,6 +31,12 @@ const roomSchema = new mongoose.Schema({
     default: false,
   },
   privateCode: {
+    type: String
+  },
+  privateText: {
+    type: String
+  },
+  privateHash: {
     type: String
   },
   maxUser: {

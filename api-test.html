@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+
+<head>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+  <style>
+    iframe {
+      width: 400px;
+      height: 600px;
+      border: 1px solid black;
+    }
+
+    button {
+      width: 200px;
+      height: 80px;
+      cursor: pointer;
+      margin: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Hi Welcome !</h1>
+  <h3>This is the test page to check the videochat API works or not :)</h3>
+
+  <button onclick="create()">Create Room</button>
+  <button onclick="closeRoom()">Close Room</button>
+  <button onclick="textToRoom()">Text To Room</button>
+  <button onclick="playToRoom()">Play To Room</button>
+  <button onclick="status()">Get Status</button>
+  <button onclick="getOnlineRooms()">Get Online Rooms</button>
+  <button onclick="getOnlineUsers()">Get Online Users</button>
+  <button onclick="getStats()">Get From and To Stats</button>
+  <br /> <br /> <br />
+
+  <code id="result"></code>
+
+  <!-- <iframe src="http://localhost:3000/r/rro" allow="camera;microphone;"></iframe> -->
+
+  <script>
+
+    var sURL = "http://localhost:3000/api";
+    // var sURL = "https://call.bemycall.com/api";
+
+    var roomID = "yy6sichDlx0mPXb86zrkHhD8haIcGvnH";
+    var roomHash = "5eaf808a3a94b0464893ea9d";
+    var privateCode = "";
+    var key = 1234567890
+
+    function create() {
+      var req = {
+        video: true,
+        audio: true,
+        screenshare: true,
+        maxUser: 10,
+        private: true,
+        privateCode: 'abc',
+        privateText: 'Please Enter PrivateCode',
+        watermarkUrl: '/images/watermark.png',
+        returnParam: [
+          {
+            id: 1,
+            name: 'ester',
+            another: 'return'
+          }
+        ]
+      }
+      // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
+      $.post(sURL + '/createroom', req, function (response) {
+        roomID = response.roomID;
+        roomHash = response.roomHash
+        privateCode = response.privateCode
+        writeResponse(response);
+      })
+    }
+
+    function closeRoom() {
+      var req = {
+        roomID: roomID,
+        roomHash: roomHash,
+        display: "Display this text on the end. This supports HTML. I can use <html> here.",
+        buttonCallToActionHost: "https://www.mycustomerdomain.com/finished",
+        buttonCallToActionGuest: "https://www.mycustomerdomain.com/finished",
+      }
+      $.post(sURL + '/closeroom', req, function (response) {
+        writeResponse(response);
+      })
+    }
+
+    function textToRoom() {
+      var req = {
+        roomID: roomID,
+        roomHash: roomHash,
+        key: "1234567890",
+        privateCode: 'abc',
+        displayHost: "Hi, Host. How are you?",
+        displayGuest: "Hi, Guest. How are you?",
+        seconds: 15,
+      }
+      $.post(sURL + '/texttoroom', req, function (response) {
+        writeResponse(response);
+      })
+    }
+
+    function playToRoom() {
+      var req = {
+        roomID: roomID,
+        roomHash: roomHash,
+        privateCode: 'abc',
+        playHost: "/media/horse.ogv",
+        playGuest: "/media/Alarm01.wav",
+        seconds: 15,
+      }
+      $.post(sURL + '/playtoroom', req, function (response) {
+        writeResponse(response);
+      })
+    }
+
+    function status() {
+      var req = {
+        roomID: roomID,
+        roomHash: roomHash,
+      }
+      $.post(sURL + '/status', req, function (response) {
+        writeResponse(response);
+      })
+    }
+
+    function getOnlineRooms() {
+      var req = {
+        key: key,
+      }
+      $.post(sURL + '/intern/rooms', req, function (response) {
+        writeResponse(response);
+      })
+    }
+    function getOnlineUsers() {
+      var req = {
+        key: key,
+      }
+      $.post(sURL + '/intern/users', req, function (response) {
+        writeResponse(response);
+      })
+    }
+    function getStats() {
+      var req = {
+        key: key,
+        from: new Date(2020, 03, 28),
+        to: new Date(2020, 04, 02),
+      }
+      $.post(sURL + '/intern/stats', req, function (response) {
+        writeResponse(response);
+      })
+    }
+    function writeResponse(data) {
+      var code = JSON.stringify(data)
+      console.log(data)
+      document.getElementById("result").innerHTML = "{<br>";
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          const element = data[key];
+          document.getElementById("result").innerHTML += "&nbsp;&nbsp;" + key + ": " + JSON.stringify(element) + ",<br>"
+
+        }
+      }
+      document.getElementById("result").innerHTML += "}"
+    }
+  </script>
+
+</body>
+
+</html>

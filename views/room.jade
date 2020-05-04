@@ -1,6 +1,9 @@
 extends layout
 
 block content
+  div(class="logo-wrapper")
+    div(class="watermark")
+
   div(class="main-video-wrapper")
     video(id="main_video", class="animated zoomIn", autoplay="autoplay", muted="true", playsinline="")
   
@@ -11,7 +14,26 @@ block content
   div(id="remote_videos", class="flex-section")
     div(class='video-tile animated fadeInRight local-video-wrapper')
       video(id="local_video_tile_view", autoplay="autoplay", muted="true", playsinline="")
-
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
+    //- div(class="video-tile animated fadeInRight")
+    //-   video(class="temp-video", autoplay="autoplay", playsinline="")
 
   div(class="btnTools")
     div(class="btn-floating btn-sm waves-effect waves-light blue gridToggle display-none",

@@ -5,43 +5,27 @@ html, body {
   overflow: hidden;
 }
 
-.tooltip {
-  position: relative;
-  display: inline-block;
-  border-bottom: 1px dotted black;
+body * {
+  box-sizing: border-box!important;
 }
 
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
+.logo-wrapper {
+  width: 200px;
+  height: 200px;
+}
+
+.watermark {
+  max-width: 100px;
+  max-height: 50px;
   position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
+  top: 32px;
+  left: 32px;
+  background-image: url(/images/watermark.png);
+  background-position: center left;
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
 }
 
 video {
@@ -61,9 +45,10 @@ video {
   flex-direction: column-reverse;
   bottom: 80px;
   position: absolute;
-  right: 0;
   height: 80%;
   align-content: flex-end;
+  right: 5px;
+  /* transform: rotateY(180deg); */
 }
 
 .video-tile {
@@ -81,23 +66,31 @@ video {
 }
 
 .remote-tile-view {
-  display: block!important;
-  width: 100%!important;
-  height: 100%!important;
-  overflow-y: scroll!important;
-  bottom: 0px!important;
+  /* display: block; */
+  width: 100%;
+  height: 100%;
+  /* overflow-y: scroll; */
+  bottom: 0px;
   text-align: center;
-  padding-top: 50px;
-  padding-bottom: 90px;
+  right: 0;
+  flex-direction: initial;
+  /* padding-top: 50px;
+  padding-bottom: 90px; */
 }
 
 .remote-tile-view .video-tile {
-  height: 40%!important;
-  width: 30%!important;
-  min-width: 250px!important;
-  display: inline-block!important;
+  height: 50%;
+  width: 50%;
+  min-width: 250px;
+  display: inline-block;
+  margin-top: 0;
   margin-right: 0;
-  padding: 10px;
+  /* padding: 10px; */
+}
+
+.remote-tile-view .video-tile video {
+  border: none!important;
+  border-radius: unset!important;
 }
 
 .video-tile video:hover {
@@ -208,3 +201,53 @@ video {
   background: transparent;
   box-shadow: none;
 }
+
+/* PrivateCode Confirm Page(confirmPrivate) BEGIN */
+
+.t-wrapper {
+  top: 40%;
+}
+
+.form-wrapper {
+  width: 300px;
+  margin: auto;
+}
+
+#privateText {
+  color: white;
+  text-align: center;
+  margin-top: 15%;
+  font-size: 20px
+}
+
+#privateCode {
+  padding-left: 10px;
+  border: 1px solid snow;
+  border-radius: 3px;
+  color: white;
+  box-sizing: border-box;
+}
+
+#error_p {
+  color: #FF9800;
+  position: relative;
+  top: -6px;
+}
+
+#go_room {
+  text-transform: initial;
+  color: white;
+  width: 100%;
+  height: 3rem;
+  padding: 5px 10px;
+  position: relative;
+  top: 15px;
+}
+
+#go_room * {
+  padding: 0;
+  margin: 0;
+  display: inline;
+}
+
+/* PrivateCode Confirm Page END */
