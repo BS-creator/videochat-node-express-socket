@@ -13,11 +13,13 @@ body * {
   width: 200px;
   height: 200px;
   position: absolute;
+  z-index: 1000000;
 }
 
 .watermark {
   max-width: 100px;
   max-height: 50px;
+  z-index: 10000000;
   position: absolute;
   top: 32px;
   left: 32px;

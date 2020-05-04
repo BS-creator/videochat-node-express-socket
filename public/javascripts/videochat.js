@@ -3,7 +3,7 @@ import { CONFIG } from './config.js'
 var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
 var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
 
-var config = {}                    // Stores chat config which from the database
+var DBconfig = {}                    // Stores chat config which from the database
 var MainVideoPeer = 'null';        // Peer of Big Video (main video)
 var signalingSocket = null;        // For signal socket
 var localMediaStream = null;       // Stores local media stream
@@ -22,24 +22,25 @@ async function init() {
 
   await $.post(ServerURL + "/get_room", { roomID: getRoomName(), hostGuest: getRoomName(true) },
     function (res) {
-      config = res;
+      DBconfig = res;
     }, 'json')
     .fail(function (err) {
       console.log(err)
       alert(err.responseJSON.message)
     });
 
-  if (!config.video) {
+  if (!DBconfig.video) {
     $(".videoToggle").addClass('disabled');
   }
-  if (!config.audio) {
+  if (!DBconfig.audio) {
     $(".micToggle").addClass('disabled');
   }
-  if (!config.screenshare) {
+  if (!DBconfig.screenshare) {
     $(".screenShare").addClass('disabled');
   }
-  if (config.private && (config.privateHash == undefined || config.privateHash != getParameterByName('hash'))) {
-    window.location.href = '/confirm?roomID=' + config.roomID + "-" + getRoomName(true) + "&text=" + config.privateText
+  if (DBconfig.private && (DBconfig.privateHash == undefined || DBconfig.privateHash != getParameterByName('hash'))) {
+    window.localStorage.setItem('privateText', DBconfig.privateText);
+    window.location.href = '/confirm?roomID=' + DBconfig.roomID + "-" + getRoomName(true)
   }
 
   // toggleGrid();  // i'd like to see toggle view when developing because it's smaller
@@ -48,7 +49,7 @@ async function init() {
   $(".videoToggle").click(toggleCamera);
   $(".screenShare").click(toggleScreenShare);
   $(".btn-call-end").click(function () { window.location.href = "/" })
-  $(".watermark").css("background-image", "url(" + config.watermarkUrl + ")")
+  $(".watermark").css("background-image", "url(" + DBconfig.watermarkUrl + ")")
   window.toggleMainVideo = toggleMainVideo;  // for toggle main video in html
 
 
@@ -61,7 +62,7 @@ async function init() {
     setup_local_media(function () {
       /* once the user has given us access to their
        * microphone/camcorder, join the channel and start peering up */
-      join_chat_channel(getRoomName(), config);
+      join_chat_channel(getRoomName(), DBconfig);
     });
   });
 
@@ -136,10 +137,6 @@ async function init() {
   */
   signalingSocket.on('addPeer', function (config) {
     console.log('Signaling server said to add peer:', config, peers);
-    // if (Object.keys(peers).length == config.max_user) {
-    //   alert("room is full")
-    //   return;
-    // }
     let peer_id = config.peer_id;
     if (peer_id in peers) {
       /* This could happen if the user joins multiple channels where the other peer is also in. */
@@ -180,10 +177,17 @@ async function init() {
     }
 
     /* Add our local stream */
-    localMediaStream.getTracks().forEach((track) => {
-      console.log('foreachtrack', track);
-      peer_connection.addTrack(track, localMediaStream)
-    });
+    if (screenShareOn) {
+      sharedVideoStream.getTracks().forEach((track) => {
+        console.log('foreachtrack', track);
+        peer_connection.addTrack(track, localMediaStream)
+      });
+    } else {
+      localMediaStream.getTracks().forEach((track) => {
+        console.log('foreachtrack', track);
+        peer_connection.addTrack(track, localMediaStream)
+      });
+    }
 
     /* Only one side of the peer connection should create the
      * offer, the signaling server picks one to be the offerer.
@@ -452,10 +456,10 @@ function setup_local_media(callback, errorback) {
           audio_exist = true;
         }
       });
-      console.log(config)
+      console.log(DBconfig)
       let constraints = {
-        "audio": config.audio ? (audio_exist ? true : false) : false,
-        "video": config.video ? (video_exist ? true : false) : false,
+        "audio": DBconfig.audio ? (audio_exist ? true : false) : false,
+        "video": DBconfig.video ? (video_exist ? true : false) : false,
       }
       return constraints;
     }).then(constraints => {
@@ -475,7 +479,7 @@ function setup_local_media(callback, errorback) {
         })
         .catch((e) => { /* user denied access to a/v */
           console.log("Access denied for audio/video");
-          alert("You chose not to provide access to the camera/microphone");
+          // alert("You chose not to provide access to the camera/microphone");
           if (errorback) errorback();
         });
 
@@ -495,7 +499,7 @@ function getRoomName(checkHost) {
 }
 
 function checkHost() {
-  return (config.hostGuest == getRoomName(true))
+  return (DBconfig.hostGuest == getRoomName(true))
 }
 
 function getParameterByName(name, url) {

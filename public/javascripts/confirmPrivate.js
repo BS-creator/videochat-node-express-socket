@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-  var privateText = getParameterByName('text');
+  var privateText = (localStorage.hasOwnProperty('privateText')) ? window.localStorage.getItem('privateText') : '';
   $("#privateText").text(privateText)
 
   // var ServerURL = "http://localhost:3000/room";

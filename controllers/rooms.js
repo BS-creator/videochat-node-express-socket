@@ -5,8 +5,11 @@ require('dotenv').config();
 var channels = require('../global/channels');
 
 // CREATE ROOM: /createroom
-exports.createRoom = function (req, res) {
+exports.createRoom = async function (req, res) {
   console.log(req.body)
+  var ck = await checkInternKey(req.body.key)
+  if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
+
   let userData = req.body;
   userData.roomID = generateRandomStr(32);
   userData.hostGuest = generateRandomStr(6);
