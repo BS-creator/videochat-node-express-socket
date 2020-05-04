@@ -80,8 +80,8 @@ exports.closeRoom = async function (req, res) {
 
   var cr = await checkRoomHash(data.roomID, data.roomHash);
   var ck = await checkInternKey(req.body.key)
-  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }) }
-  if (!ck) { res.status(406).send({ message: "Invalid Key" }) }
+  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
+  if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
   await Room.findOneAndUpdate({ _id: data.roomHash }, { closedAt: Date.now(), roomStatus: 'closed' }, { new: true })
   console.log('closeRoom', data, channels)
@@ -97,8 +97,8 @@ exports.textToRoom = async function (req, res) {
 
   var cr = await checkRoomHash(data.roomID, data.roomHash);
   var ck = await checkInternKey(req.body.key)
-  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }) }
-  if (!ck) { res.status(406).send({ message: "Invalid Key" }) }
+  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
+  if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
   console.log('textToRoom', data, channels)
   for (id in channels[data.roomID]) {
@@ -113,8 +113,8 @@ exports.playToRoom = async function (req, res) {
 
   var cr = await checkRoomHash(data.roomID, data.roomHash);
   var ck = await checkInternKey(req.body.key)
-  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }) }
-  if (!ck) { res.status(406).send({ message: "Invalid Key" }) }
+  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
+  if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
   console.log('playToRoom', data, channels)
   for (id in channels[data.roomID]) {
@@ -129,8 +129,8 @@ exports.statusOfRoom = async function (req, res) {
 
   var cr = await checkRoomHash(data.roomID, data.roomHash);
   var ck = await checkInternKey(req.body.key)
-  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }) }
-  if (!ck) { res.status(406).send({ message: "Invalid Key" }) }
+  if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
+  if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
   var room = await Room.findById(data.roomHash);
   var roomusers = await Roomuser.find({ roomHash: room._id });

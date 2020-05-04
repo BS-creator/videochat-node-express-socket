@@ -3,8 +3,8 @@ $(document).ready(function () {
   var privateText = getParameterByName('text');
   $("#privateText").text(privateText)
 
-  var ServerURL = "http://localhost:3000/room";
-  // var ServerURL = "https://call.bemycall.com/room";
+  // var ServerURL = "http://localhost:3000/room";
+  var ServerURL = "https://call.bemycall.com/room";
   $("#go_room").click(function () {
     var pcode = $("#privateCode").val();
     var roomName = getParameterByName('roomID');
