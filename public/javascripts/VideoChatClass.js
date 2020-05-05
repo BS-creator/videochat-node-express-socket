@@ -30,7 +30,7 @@ class VideoChat {
     // this.ServerURL = "http://localhost:3000/room";
     this.ServerURL = "https://call.bemycall.com/room";
 
-    await $.post(this.ServerURL + "/get_room", { roomID: this.getRoomName(), hostGuest: this.getRoomName(true) },
+    await $.post(this.ServerURL + "/get_room", { roomId: this.getRoomName(), hostGuest: this.getRoomName(true) },
       function (res) {
         that.config = res;
       }, 'json')
@@ -49,7 +49,7 @@ class VideoChat {
       $(".screenShare").addClass('disabled');
     }
     if (this.config.private && (this.config.privateHash == undefined || this.config.privateHash != this.getParameterByName('hash'))) {
-      window.location.href = '/confirm?roomID=' + this.config.roomID + "-" + this.getRoomName(true) + "&text=" + this.config.privateText
+      window.location.href = '/confirm?roomId=' + this.config.roomId + "-" + this.getRoomName(true) + "&text=" + this.config.privateText
     }
 
     // this.toggleGrid();  // i'd like to see toggle view when developing because it's smaller

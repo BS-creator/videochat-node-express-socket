@@ -17,7 +17,7 @@ const roomUserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  roomHash: {    // roomHash is _id of Room. we call '_id of Room' roomHash
+  room_id: {    // room_id is _id of Room. we call '_id of Room' room_id
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
     required: true,

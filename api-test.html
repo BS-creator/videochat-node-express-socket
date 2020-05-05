@@ -42,8 +42,8 @@
     var sURL = "http://localhost:3000/api";
     // var sURL = "https://call.bemycall.com/api";
 
-    var roomID = "yy6sichDlx0mPXb86zrkHhD8haIcGvnH";
-    var roomHash = "5eaf808a3a94b0464893ea9d";
+    var roomId = "yy6sichDlx0mPXb86zrkHhD8haIcGvnH";
+    var roomHash = "fds";
     var privateCode = "";
     var key = 1234567890
 
@@ -54,8 +54,8 @@
         screenshare: true,
         key: "1234567890",
         maxUser: 10,
-        private: true,
-        privateCode: 'abc',
+        // private: true,
+        // privateCode: 'abc',
         privateText: 'Please Enter PrivateCode',
         watermarkUrl: '/images/watermark.png',
         returnParam: [
@@ -68,8 +68,8 @@
       }
       // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
       $.post(sURL + '/createroom', req, function (response) {
-        roomID = response.roomID;
-        roomHash = response.roomHash
+        roomId = response.roomId;
+        // roomHash = response.roomHash
         privateCode = response.privateCode
         writeResponse(response);
       })
@@ -77,7 +77,8 @@
 
     function closeRoom() {
       var req = {
-        roomID: roomID,
+        roomId: roomId,
+        key: "1234567890",
         roomHash: roomHash,
         display: "Display this text on the end. This supports HTML. I can use <html> here.",
         buttonCallToActionHost: "https://www.mycustomerdomain.com/finished",
@@ -90,7 +91,7 @@
 
     function textToRoom() {
       var req = {
-        roomID: roomID,
+        roomId: roomId,
         roomHash: roomHash,
         key: "1234567890",
         privateCode: 'abc',
@@ -105,9 +106,10 @@
 
     function playToRoom() {
       var req = {
-        roomID: roomID,
+        roomId: roomId,
         roomHash: roomHash,
         privateCode: 'abc',
+        key: "1234567890",
         playHost: "/media/horse.ogv",
         playGuest: "/media/Alarm01.wav",
         seconds: 15,
@@ -119,7 +121,8 @@
 
     function status() {
       var req = {
-        roomID: roomID,
+        roomId: roomId,
+        key: "1234567890",
         roomHash: roomHash,
       }
       $.post(sURL + '/status', req, function (response) {

@@ -9,9 +9,9 @@ exports.createRoomUser = function (roomUser) {
   NewRoomUser.save()
     .then(async (data) => {
       console.log(data);
-      await Room.findOneAndUpdate({ _id: roomUser.roomHash }, { $inc: { usersOnline: 1 } }, { new: true })
+      await Room.findOneAndUpdate({ _id: roomUser.room_id }, { $inc: { usersOnline: 1 } }, { new: true })
       if (roomUser.usersOnline + 1 > roomUser.maxUsersOnline) {
-        await Room.findOneAndUpdate({ _id: roomUser.roomHash }, { maxUsersOnline: roomUser.usersOnline + 1 }, { new: true })
+        await Room.findOneAndUpdate({ _id: roomUser.room_id }, { maxUsersOnline: roomUser.usersOnline + 1 }, { new: true })
       }
     })
     .catch((err) => {
@@ -34,7 +34,7 @@ exports.updateRoomUser = async function (info) {
     console.log(res.n, res.nModified)
     if (res.nModified != 0) {
       var data = { $inc: { totalUsedSeconds: usedSeconds, usersOnline: -1 } }
-      var aa = await Room.findOneAndUpdate({ _id: roomUser.roomHash }, data, { new: true })
+      var aa = await Room.findOneAndUpdate({ _id: roomUser.room_id }, data, { new: true })
       console.log('I am, too', aa.n, aa.nModified)
     }
   }

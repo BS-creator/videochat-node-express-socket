@@ -7,12 +7,12 @@ $(document).ready(function () {
   var ServerURL = "https://call.bemycall.com/room";
   $("#go_room").click(function () {
     var pcode = $("#privateCode").val();
-    var roomName = getParameterByName('roomID');
+    var roomName = getParameterByName('roomId');
     let segs = roomName.split("-");
-    var roomID = segs[0]
-    $.post(ServerURL + '/comparePrivateCode', { roomID, privateCode: pcode }, function (res) {
+    var roomId = segs[0]
+    $.post(ServerURL + '/comparePrivateCode', { roomId, privateCode: pcode }, function (res) {
       // $("#error_p").text(res.message).show()
-      window.location.href = "/r/" + res.roomID + "-" + segs[1] + "?hash=" + res.privateHash
+      window.location.href = "/r/" + res.roomId + "-" + segs[1] + "?hash=" + res.privateHash
     }, 'json')
       .fail(function (err) {
         console.log(err)

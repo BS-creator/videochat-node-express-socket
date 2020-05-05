@@ -17,10 +17,10 @@ var sharedVideoStream = null;      // Stores shared Stream
 var ServerURL = '';                // Stores Server URL. It same as self location . . .
 
 async function init() {
-  // ServerURL = "http://localhost:3000/room";
-  ServerURL = "https://call.bemycall.com/room";
+  ServerURL = "http://localhost:3000/room";
+  // ServerURL = "https://call.bemycall.com/room";
 
-  await $.post(ServerURL + "/get_room", { roomID: getRoomName(), hostGuest: getRoomName(true) },
+  await $.post(ServerURL + "/get_room", { roomId: getRoomName(), hostGuest: getRoomName(true) },
     function (res) {
       DBconfig = res;
     }, 'json')
@@ -40,7 +40,7 @@ async function init() {
   }
   if (DBconfig.private && (DBconfig.privateHash == undefined || DBconfig.privateHash != getParameterByName('hash'))) {
     window.localStorage.setItem('privateText', DBconfig.privateText);
-    window.location.href = '/confirm?roomID=' + DBconfig.roomID + "-" + getRoomName(true)
+    window.location.href = '/confirm?roomId=' + DBconfig.roomId + "-" + getRoomName(true)
   }
 
   // toggleGrid();  // i'd like to see toggle view when developing because it's smaller
@@ -410,7 +410,6 @@ function toggleScreenShare() {
     document.getElementById("local_video_tile_view").srcObject = localMediaStream;
     screenShareOn = false;
   } else {
-    const that = this;
     navigator.mediaDevices.getDisplayMedia(CONFIG.displayMediaOptions)
       .then((stream) => {
         let videoTrack = stream.getVideoTracks()[0];
@@ -458,8 +457,10 @@ function setup_local_media(callback, errorback) {
       });
       console.log(DBconfig)
       let constraints = {
-        "audio": DBconfig.audio ? (audio_exist ? true : false) : false,
-        "video": DBconfig.video ? (video_exist ? true : false) : false,
+        // "audio": DBconfig.audio ? (audio_exist ? true : false) : false,
+        // "video": DBconfig.video ? (video_exist ? true : false) : false,
+        audio: true,
+        video: false,
       }
       return constraints;
     }).then(constraints => {
