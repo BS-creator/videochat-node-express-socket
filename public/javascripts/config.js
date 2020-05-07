@@ -19,7 +19,7 @@ export const CONFIG = {
     video: {
       cursor: "always"
     },
-    audio: false
+    audio: true
   },
   MUTE_AUDIO_BY_DEFAULT: false,
 }

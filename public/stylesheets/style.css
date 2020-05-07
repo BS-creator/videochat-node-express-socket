@@ -23,7 +23,7 @@ body * {
   position: absolute;
   top: 32px;
   left: 32px;
-  background-image: url(/images/watermark.png);
+  /* background-image: url(/images/watermark.png); */
   background-position: center left;
   background-size: contain;
   background-repeat: no-repeat;

@@ -42,8 +42,8 @@
     var sURL = "http://localhost:3000/api";
     // var sURL = "https://call.bemycall.com/api";
 
-    var roomId = "yy6sichDlx0mPXb86zrkHhD8haIcGvnH";
-    var roomHash = "fds";
+    var roomId = "TrTYwrYFj6vTyY3skuu3Nzcf98Dnu2tp";
+    var roomHash = "v73nFxuuOqnz8mFNIn40hAJCa3Puf0FX";
     var privateCode = "";
     var key = 1234567890
 
@@ -58,6 +58,13 @@
         // privateCode: 'abc',
         privateText: 'Please Enter PrivateCode',
         watermarkUrl: '/images/watermark.png',
+        hangupDisplayTextHost: "This Text will Display if the User Hangup the Call.",
+        hangupDisplayTextGuest: "This Text will Display if the User Hangup the Call.",
+        hangupCallToActionButtonHost: "Go to Site Button",
+        hangupCallToActionButtonGuest: "Go to anything",
+        hangupForceForwardHost: "https://www.dontdisplayjustforward.com",
+        hangupForceForwardGuest: "https://www.dontdisplayjustforward.com",
+
         returnParam: [
           {
             id: 1,
@@ -69,7 +76,7 @@
       // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
       $.post(sURL + '/createroom', req, function (response) {
         roomId = response.roomId;
-        // roomHash = response.roomHash
+        roomHash = response.roomHash
         privateCode = response.privateCode
         writeResponse(response);
       })
@@ -80,7 +87,9 @@
         roomId: roomId,
         key: "1234567890",
         roomHash: roomHash,
-        display: "Display this text on the end. This supports HTML. I can use <html> here.",
+        display: "Thank you for using.",
+        buttonCallToActionTextHost: "Back to Site",
+        buttonCallToActionTextGuest: "Back to Another Site",
         buttonCallToActionHost: "https://www.mycustomerdomain.com/finished",
         buttonCallToActionGuest: "https://www.mycustomerdomain.com/finished",
       }

@@ -26,7 +26,9 @@ async function init() {
     }, 'json')
     .fail(function (err) {
       console.log(err)
-      alert(err.responseJSON.message)
+      window.localStorage.setItem('whenRoomClosed', JSON.stringify({ display: err.responseJSON.message }));
+      window.location.href = "/room-closed"
+      // alert(err.responseJSON.message)
     });
 
   if (!DBconfig.video) {
@@ -48,7 +50,19 @@ async function init() {
   $(".gridToggle").click(toggleGrid);
   $(".videoToggle").click(toggleCamera);
   $(".screenShare").click(toggleScreenShare);
-  $(".btn-call-end").click(function () { window.location.href = "/" })
+  $(".btn-call-end").click(function () {
+    var data = {
+      hangupDisplayTextHost: DBconfig.hangupDisplayTextHost,
+      hangupDisplayTextHost: DBconfig.hangupDisplayTextHost,
+      hangupCallToActionButtonHost: DBconfig.hangupCallToActionButtonHost,
+      hangupCallToActionButtonGuest: DBconfig.hangupCallToActionButtonGuest,
+      hangupForceForwardHost: DBconfig.hangupForceForwardHost,
+      hangupForceForwardGuest: DBconfig.hangupForceForwardGuest,
+      isHost: checkHost()
+    }
+    localStorage.setItem("whenHangUp", JSON.stringify(data));
+    window.location.href = "/";
+  })
   $(".watermark").css("background-image", "url(" + DBconfig.watermarkUrl + ")")
   window.toggleMainVideo = toggleMainVideo;  // for toggle main video in html
 
@@ -99,7 +113,7 @@ async function init() {
     } else {
       data.isHost = checkHost();
       window.localStorage.setItem('whenRoomClosed', JSON.stringify(data));
-      window.location.href = "/";
+      window.location.href = "/room-closed";
     }
   })
 
@@ -457,10 +471,10 @@ function setup_local_media(callback, errorback) {
       });
       console.log(DBconfig)
       let constraints = {
-        // "audio": DBconfig.audio ? (audio_exist ? true : false) : false,
-        // "video": DBconfig.video ? (video_exist ? true : false) : false,
-        audio: true,
-        video: false,
+        "audio": DBconfig.audio ? (audio_exist ? true : false) : false,
+        "video": DBconfig.video ? (video_exist ? true : false) : false,
+        // audio: true,
+        // video: false,
       }
       return constraints;
     }).then(constraints => {

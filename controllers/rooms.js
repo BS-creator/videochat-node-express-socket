@@ -255,7 +255,8 @@ exports.getStats = async function (req, res) {
 }
 
 const checkRoomHash = async (roomId, roomHash) => {
-  const roomLength = await Room.find({ roomId, roomHash }).count();
+  const rooms = await Room.find({ roomId, roomHash });
+  const roomLength = rooms.length;
   console.log('checkroomhash', roomLength)
   if (roomLength != 0) {
     return true

@@ -78,6 +78,12 @@ const roomSchema = new mongoose.Schema({
   hostGuest: {
     type: String
   },
+  hangupDisplayTextHost: String,
+  hangupDisplayTextGuest: String,
+  hangupCallToActionButtonHost: String,
+  hangupCallToActionButtonGuest: String,
+  hangupForceForwardHost: String,
+  hangupForceForwardGuest: String,
   createdAt: {
     type: Date,
     default: Date.now
