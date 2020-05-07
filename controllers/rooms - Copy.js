@@ -12,7 +12,6 @@ exports.createRoom = async function (req, res) {
 
   let userData = req.body;
   userData.roomId = generateRandomStr(32);
-  userData.roomHash = generateRandomStr(32);
   userData.hostGuest = generateRandomStr(6);
   let NewRoom = new Room(userData); // this is model object.
   NewRoom.save()
@@ -21,7 +20,7 @@ exports.createRoom = async function (req, res) {
       let resData = {
         status: 200,
         roomId: data.roomId,
-        roomHash: data.roomHash,
+        roomHash: data._id,
         audio: data.audio,
         video: data.video,
         screenshare: data.screenshare,
@@ -87,7 +86,7 @@ exports.closeRoom = async function (req, res) {
   if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
   if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
-  await Room.findOneAndUpdate({ roomHash: data.roomHash }, { closedAt: Date.now(), roomStatus: 'closed' }, { new: true })
+  await Room.findOneAndUpdate({ _id: data.roomHash }, { closedAt: Date.now(), roomStatus: 'closed' }, { new: true })
   console.log('closeRoom', data, channels)
   for (id in channels[data.roomId]) {
     channels[data.roomId][id].emit('roomClosed', data);
@@ -136,9 +135,8 @@ exports.statusOfRoom = async function (req, res) {
   if (!cr) { res.status(406).send({ message: "Invalid RoomHash" }); return; }
   if (!ck) { res.status(406).send({ message: "Invalid Key" }); return; }
 
-  var rooms = await Room.find({ roomHash: data.roomHash });
-  var room = rooms[0]
-  var roomusers = await Roomuser.find({ room_id: room._id });
+  var room = await Room.findById(data.roomHash);
+  var roomusers = await Roomuser.find({ roomHash: room._id });
   console.log('room', roomusers)
   var totalUsedSeconds = room.totalUsedSeconds;
   var resUsers = [];
@@ -156,7 +154,7 @@ exports.statusOfRoom = async function (req, res) {
   });
   var resData = {
     roomId: room.roomId,
-    roomHash: room.roomHash,
+    roomHash: room._id,
     totalUsedSeconds: totalUsedSeconds,
     usersOnline: room.usersOnline,
     maxUsersOnline: room.maxUsersOnline,
@@ -182,11 +180,12 @@ exports.statusOfAllRoom = async function (req, res) {
     rooms.forEach(async (item) => {
       var temp = { ...item }
       var room = temp._doc
-      room.users = await Roomuser.find({ room_id: room._id, leavedAt: undefined });
-      // console.log('rooms', room)
+      room.roomHash = room._id;
       delete room._id;
       delete room.returnParam;
       delete room.roomusers;
+      room.users = await Roomuser.find({ roomHash: room.roomHash, leavedAt: undefined });
+      // console.log('rooms', room)
       resData.push(room)
     });
     wait(1500).then(() => {
@@ -248,15 +247,14 @@ exports.getStats = async function (req, res) {
       roomsTotla: rooms.length,
       videoRooms: rooms.length - audioRooms.length,
       audioRooms: audioRooms.length,
-      usedSeconds: (usedSeconds.length > 1) ? usedSeconds[0].amount : 0,
+      usedSeconds: usedSeconds[0].amount,
     }
     res.status(200).send(resData)
   }
 }
 
 const checkRoomHash = async (roomId, roomHash) => {
-  const rooms = await Room.find({ roomId, roomHash });
-  const roomLength = rooms.length;
+  const roomLength = await Room.find({ roomId, _id: roomHash }).count();
   console.log('checkroomhash', roomLength)
   if (roomLength != 0) {
     return true

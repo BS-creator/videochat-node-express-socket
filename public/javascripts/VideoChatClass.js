@@ -1,5 +1,8 @@
 import { CONFIG } from './config.js'
 
+var RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
+var RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
+
 class VideoChat {
   constructor(initVals) {
 
@@ -24,10 +27,10 @@ class VideoChat {
 
   init = async () => {
     const that = this;  // it's for when used in signalingSocket.on 
-    // this.ServerURL = window.location.protocol + "//" + window.location.hostname + ":3000/room";
+    // this.ServerURL = "http://localhost:3000/room";
     this.ServerURL = "https://call.bemycall.com/room";
 
-    await $.post(this.ServerURL + "/get_room", { roomID: this.getRoomName() },
+    await $.post(this.ServerURL + "/get_room", { roomId: this.getRoomName(), hostGuest: this.getRoomName(true) },
       function (res) {
         that.config = res;
       }, 'json')
@@ -45,6 +48,9 @@ class VideoChat {
     if (!this.config.screenshare) {
       $(".screenShare").addClass('disabled');
     }
+    if (this.config.private && (this.config.privateHash == undefined || this.config.privateHash != this.getParameterByName('hash'))) {
+      window.location.href = '/confirm?roomId=' + this.config.roomId + "-" + this.getRoomName(true) + "&text=" + this.config.privateText
+    }
 
     // this.toggleGrid();  // i'd like to see toggle view when developing because it's smaller
     $(".micToggle").click(this.toggleMic);
@@ -52,7 +58,7 @@ class VideoChat {
     $(".videoToggle").click(this.toggleCamera);
     $(".screenShare").click(this.toggleScreenShare);
     $(".btn-call-end").click(function () { window.location.href = "/" })
-    $(".modal-backdrop").click(function () { $("#messageModal").modal('hide') })
+    $(".watermark").css("background-image", "url(" + this.config.watermarkUrl + ")")
     window.toggleMainVideo = this.toggleMainVideo;  // for toggle main video in html
 
 
@@ -174,6 +180,8 @@ class VideoChat {
         if (!(that.peerMediaElements.hasOwnProperty(peer_id))) {
           let remote_media_ele = that.createVideoElement(remoteStream, peer_id)
           that.peerMediaElements[peer_id] = remote_media_ele;
+          that.chageLayout()
+
         }
         that.remoteStreams[peer_id] = remoteStream;
         if (Object.keys(that.remoteStreams).length == 1) {
@@ -285,6 +293,7 @@ class VideoChat {
       delete that.peers[peer_id];
       delete that.peerMediaElements[config.peer_id];
       delete that.remoteStreams[config.peer_id];
+      that.chageLayout()
 
       if (that.MainVideoPeer === config.peer_id && Object.keys(that.remoteStreams).length >= 1) {  // if there's at least one remote stream, then add it to main video, else local video 
         that.attachMediaStream(document.getElementById("main_video"), that.remoteStreams[Object.keys(that.remoteStreams)[0]]);
@@ -307,14 +316,34 @@ class VideoChat {
   }
 
   createVideoElement = (stream, peer_id) => {
-    let videoWrapper = $("<div class='video-tile animated fadeInRight'></div>")
+    var eleLen = parseInt(Object.keys(this.peerMediaElements).length) + 1;
+    console.log(eleLen)
+    var layout = [["100%", "100%"], ["50%", "100%"], ["33.333%", "100%"], ["50%", "50%"], ["33.333%", "50%"], ["33.333%", "50%"], ["25%", "50%"]]
+    let styles = '';//($("#remote_videos").hasClass("remote-tile-view")) ? 'style=width: ' + layout[eleLen][0] + ', height: ' + layout[eleLen][1] : '';
+    let videoWrapper = $("<div class='video-tile animated fadeInRight' " + styles + "></div>")
     let videoEle = $("<video onclick='toggleMainVideo(this)' peer_id='" + peer_id + "'>");
     videoEle.attr("autoplay", "autoplay");
     videoEle.attr("playsinline", "");
     $(videoWrapper).append(videoEle);
     $('#remote_videos').append(videoWrapper);
     this.attachMediaStream(videoEle[0], stream);
+    // this.chageLayout()
     return videoWrapper;
+  }
+
+  chageLayout = () => {
+    var eleLen = Object.keys(this.peerMediaElements).length;
+    var layout = [["100%", "100%"], ["50%", "100%"], ["33.333%", "100%"], ["50%", "50%"], ["33.333%", "50%"], ["33.333%", "50%"], ["25%", "50%"], ["25%", "50%"], ["33.333%", "33.333%"], ["20%", "50%"], ["20%", "33.333%"]]
+    if (eleLen > 9) eleLen = 10
+    console.log(eleLen, $("#remote_videos").hasClass("remote-tile-view"), layout[eleLen], layout[eleLen][0], layout[eleLen][1]);
+    if ($("#remote_videos").hasClass("remote-tile-view")) {
+      $(".remote-tile-view .video-tile ").css({ width: layout[eleLen][0], height: layout[eleLen][1] })
+    } else {
+      console.log('else')
+      // $(".remote-tile-view .video-tile ").removeAttr("style")
+      $(".video-tile ").css({ width: "160px", height: "100px" })
+    }
+
   }
 
   toggleMainVideo = (selfEle) => {
@@ -365,6 +394,8 @@ class VideoChat {
     $(".local-video-wrapper").toggle();
     $(".main-video-wrapper").toggle();
     $("#remote_videos").toggleClass("remote-tile-view");
+    this.chageLayout();
+
   }
 
   toggleScreenShare = () => {
@@ -446,6 +477,10 @@ class VideoChat {
             this.attachMediaStream(document.getElementById("main_video"), stream);
             this.attachMediaStream(document.getElementById("local_video"), stream);
             this.attachMediaStream(document.getElementById("local_video_tile_view"), stream);
+            var eles = document.getElementsByClassName("temp-video")
+            for (var i = 0; i < eles.length; i++) {
+              eles[i].srcObject = stream
+            }
             if (callback) callback();
           })
           .catch((e) => { /* user denied access to a/v */
@@ -464,13 +499,23 @@ class VideoChat {
     let commonSeg = segs[segs.length - 1].split("-")
     console.log(commonSeg[0])
     if (checkHost) {
-      return commonSeg[1]
+      return (commonSeg[commonSeg.length - 1].split('?'))[0]
     }
     return commonSeg[0];
   }
 
   checkHost = () => {
     return (this.config.hostGuest == this.getRoomName(true))
+  }
+
+  getParameterByName = (name, url) => {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
 
 }
@@ -498,7 +543,3 @@ var isMobile = {
 
 const VC = new VideoChat();
 VC.init();
-
-$(document).ready(function () {
-  $('[data-toggle="tooltip"]').tooltip();
-});

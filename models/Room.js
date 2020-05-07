@@ -1,11 +1,11 @@
 var mongoose = require('mongoose');
 
 // roomHash = Schema.Types.ObjectId of this schema
-// roomID, audio, video, screenshare, roomType, private, privateCode, 
+// roomId, audio, video, screenshare, roomType, private, privateCode, privateText,
 // maxUser, usersOnline, maxUsersOnline, totalUsedSeconds, roomStatus, 
 // hearbeat, hearbeatUrl, watermarkUrl, returnParam, createdAt, closedAt
 const roomSchema = new mongoose.Schema({
-  roomID: {
+  roomId: {
     type: String,
     unique: true,
     required: true,
@@ -13,6 +13,11 @@ const roomSchema = new mongoose.Schema({
   audio: {
     type: Boolean,
     required: true,
+  },
+  roomHash: {
+    type: String,
+    unique: true,
+    required: true
   },
   video: {
     type: Boolean,
@@ -31,6 +36,12 @@ const roomSchema = new mongoose.Schema({
     default: false,
   },
   privateCode: {
+    type: String
+  },
+  privateText: {
+    type: String
+  },
+  privateHash: {
     type: String
   },
   maxUser: {
@@ -67,6 +78,12 @@ const roomSchema = new mongoose.Schema({
   hostGuest: {
     type: String
   },
+  hangupDisplayTextHost: String,
+  hangupDisplayTextGuest: String,
+  hangupCallToActionButtonHost: String,
+  hangupCallToActionButtonGuest: String,
+  hangupForceForwardHost: String,
+  hangupForceForwardGuest: String,
   createdAt: {
     type: Date,
     default: Date.now
@@ -84,8 +101,8 @@ const roomSchema = new mongoose.Schema({
 
 });
 
-roomSchema.statics.findByRoomID = async function (roomID) {
-  let room = await this.findOne({ roomID });
+roomSchema.statics.findByRoomID = async function (roomId) {
+  let room = await this.findOne({ roomId });
   if (!room) {
     return false;
   }

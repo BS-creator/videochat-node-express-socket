@@ -69,7 +69,7 @@ io.sockets.on('connection', function (socket) {
     }
     var userData = {
       userId: socket.id,
-      roomHash: userData._id,
+      room_id: userData._id,
       maxUsersOnline: userData.maxUsersOnline,
       usersOnline: userData.usersOnline,
     };
