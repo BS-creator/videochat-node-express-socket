@@ -64,5 +64,8 @@ To run: 'npm install && npm start'
   sudo service nginx restart
   ```
 
-### Visit on browser by typing your domain name on URL bar :)
+## Visit on browser by typing your domain name on URL bar :)
+  ```
+  https://roomapi.io
+  ```
 
