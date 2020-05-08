@@ -22,4 +22,6 @@ export const CONFIG = {
     audio: true
   },
   MUTE_AUDIO_BY_DEFAULT: false,
+  // ServerURL: "http://localhost:3000/room",
+  ServerURL: "https://call.bemycall.com/room",
 }

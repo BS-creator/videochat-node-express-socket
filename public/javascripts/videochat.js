@@ -17,10 +17,8 @@ var sharedVideoStream = null;      // Stores shared Stream
 var ServerURL = '';                // Stores Server URL. It same as self location . . .
 
 async function init() {
-  ServerURL = "http://localhost:3000/room";
-  // ServerURL = "https://call.bemycall.com/room";
 
-  await $.post(ServerURL + "/get_room", { roomId: getRoomName(), hostGuest: getRoomName(true) },
+  await $.post(CONFIG.ServerURL + "/get_room", { roomId: getRoomName(), hostGuest: getRoomName(true) },
     function (res) {
       DBconfig = res;
     }, 'json')

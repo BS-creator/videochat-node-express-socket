@@ -30,8 +30,8 @@ exports.createRoom = async function (req, res) {
         privateText: data.privateText,
         createdAt: data.createdAt,
         returnParam: data.returnParam,
-        roomHost: "https://call.bemycall.com/r/" + data.roomId + "-" + data.hostGuest,
-        roomGuest: "https://call.bemycall.com/r/" + data.roomId + "-" + data.hostGuest.split("").reverse().join(""),
+        roomHost: process.env.APP_URL + data.roomId + "-" + data.hostGuest,
+        roomGuest: process.env.APP_URL + data.roomId + "-" + data.hostGuest.split("").reverse().join(""),
       }
 
       res.status(201).send(resData);

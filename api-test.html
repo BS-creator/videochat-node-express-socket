@@ -35,9 +35,19 @@
 
   <code id="result"></code>
 
-  <!-- <iframe src="http://localhost:3000/r/rro" allow="camera;microphone;"></iframe> -->
+  <video crossorigin="use-credentials" id="leftVideo" playsinline controls loop muted autoplay>
+    <source src="public/media/chrome.webm" type="video/webm" />
+  </video>
 
   <script>
+    var leftVideo = document.getElementById('leftVideo');
+    leftVideo.onplay = function () {
+      // Set the source of one <video> element to be a stream from another.
+      var stream = leftVideo.captureStream();
+      rightVideo.srcObject = stream;
+      console.log(stream)
+    };
+
 
     var sURL = "http://localhost:3000/api";
     // var sURL = "https://call.bemycall.com/api";
