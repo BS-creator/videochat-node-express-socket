@@ -1,5 +1,6 @@
 export const CONFIG = {
   SIGNALING_SERVER: "https://roomapi.io/",
+  // SIGNALING_SERVER: "http://localhost:3000/",
   ICE_SERVERS: [
     { urls: ["stun:ws-turn2.xirsys.com"] },
     {

@@ -310,6 +310,7 @@ async function init() {
 }
 
 function join_chat_channel(channel, userData) {
+  console.log('join_chat_channel', channel)
   signalingSocket.emit('join', { "channel": channel, "userData": userData });
 }
 
@@ -451,6 +452,7 @@ function setup_local_media(callback, errorback) {
   /* Ask user for permission to use the computers microphone and/or camera,
    * attach it to an <audio> or <video> tag if they give us access. */
   console.log("Requesting access to local audio / video inputs");
+  var tempVideoTrack = null;
 
   // check if the video and audio devices exist or not
   let video_exist = false;
@@ -481,13 +483,22 @@ function setup_local_media(callback, errorback) {
         .then((stream) => { /* user accepted access to a/v */
           console.log("Access granted to audio/video", stream);
           localMediaStream = stream;
+
+          if (constraints.video == false) {
+            var leftVideo = document.getElementById('leftVideo');
+            var stream = leftVideo.captureStream();
+            tempVideoTrack = stream.getVideoTracks()
+            console.log(stream)
+            console.log(tempVideoTrack)
+            localMediaStream.addTrack(tempVideoTrack[0])
+          }
           attachMediaStream(document.getElementById("main_video"), stream);
           attachMediaStream(document.getElementById("local_video"), stream);
           attachMediaStream(document.getElementById("local_video_tile_view"), stream);
-          var eles = document.getElementsByClassName("temp-video")
-          for (var i = 0; i < eles.length; i++) {
-            eles[i].srcObject = stream
-          }
+          // var eles = document.getElementsByClassName("temp-video")  // for test tile-view
+          // for (var i = 0; i < eles.length; i++) {
+          //   eles[i].srcObject = stream
+          // }
           if (callback) callback();
         })
         .catch((e) => { /* user denied access to a/v */

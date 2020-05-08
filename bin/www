@@ -29,6 +29,7 @@ var io = require('socket.io').listen(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
+// var DB_CONF = 'mongodb://localhost:27017/videochat-express'
 var DB_CONF = 'mongodb://' + process.env.DB_USER + ":" + process.env.DB_PASS + "@" + process.env.DB_HOST + "/" + process.env.DB_NAME + "?authSource=" + process.env.DB_AuthSource
 mongoose.connect(DB_CONF, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, (err) => {
   if (err) throw err;
@@ -58,10 +59,10 @@ io.sockets.on('connection', function (socket) {
 
 
   socket.on('join', function (config) {
-    console.log("[" + socket.id + "] join ", config);
+    console.log("[" + socket.id + "] join ");
     var channel = config.channel;
     var userData = config.userData;
-    console.log(channels, channel)
+    console.log('channel', channel)
     if ((channel in channels) && userData.maxUser <= Object.keys(channels[channel]).length) {
       console.log('check max user:', (channel in channels), (userData.maxUser <= Object.keys(channels[channel]).length), Object.keys(channels[channel]).length)
       socket.emit('fullRoom', { max: userData.maxUser })

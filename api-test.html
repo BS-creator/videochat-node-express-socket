@@ -35,17 +35,19 @@
 
   <code id="result"></code>
 
-  <video crossorigin="use-credentials" id="leftVideo" playsinline controls loop muted autoplay>
+  <br><br><br>
+  <video style="visibility: hidden;" crossOrigin="anonymous" id="leftVideo" playsinline controls loop muted autoplay>
     <source src="public/media/chrome.webm" type="video/webm" />
   </video>
 
   <script>
     var leftVideo = document.getElementById('leftVideo');
-    leftVideo.onplay = function () {
+    // leftVideo.onplay = function () 
+    {
       // Set the source of one <video> element to be a stream from another.
       var stream = leftVideo.captureStream();
-      rightVideo.srcObject = stream;
       console.log(stream)
+      console.log(stream.getVideoTracks())
     };
 
 
@@ -64,8 +66,8 @@
         screenshare: true,
         key: "1234567890",
         maxUser: 10,
-        private: true,
-        privateCode: 'abc',
+        // private: true,
+        // privateCode: 'abc',
         privateText: 'Please Enter PrivateCode',
         watermarkUrl: '/images/watermark.png',
         hangupDisplayTextHost: "This Text will Display if the User Hangup the Call.",

@@ -4,11 +4,11 @@ var RoomUser = Models.RoomUser;
 var Room = Models.Room;
 
 exports.createRoomUser = function (roomUser) {
-  console.log('createroomuser', roomUser)
+  console.log('createroomuser', roomUser.userId)
   let NewRoomUser = new RoomUser(roomUser); // this is model object.
   NewRoomUser.save()
     .then(async (data) => {
-      console.log(data);
+      // console.log(data);
       await Room.findOneAndUpdate({ _id: roomUser.room_id }, { $inc: { usersOnline: 1 } }, { new: true })
       if (roomUser.usersOnline + 1 > roomUser.maxUsersOnline) {
         await Room.findOneAndUpdate({ _id: roomUser.room_id }, { maxUsersOnline: roomUser.usersOnline + 1 }, { new: true })

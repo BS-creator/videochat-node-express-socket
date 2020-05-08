@@ -46,12 +46,12 @@ exports.createRoom = async function (req, res) {
 exports.getRoom = function (req, res) {
   var room_id = req.body.roomId;
   var hostGuest = req.body.hostGuest;
-  console.log(room_id)
+  console.log('getRoom', room_id)
   Room.findByRoomID(room_id).then(room => {
-    console.log(room_id, room)
+    // console.log(room_id, room)
     if (!room || (hostGuest != room.hostGuest && hostGuest != room.hostGuest.split("").reverse().join(""))) {
       res.status(500).send({ message: "Room doesn't exist" })
-      console.log(room)
+      // console.log(room)
     } else if (room.closedAt != null) {
       res.status(500).send({ message: "Room is closed" })
     } else {
