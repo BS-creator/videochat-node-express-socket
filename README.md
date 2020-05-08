@@ -2,9 +2,7 @@
 Express default Project Structure
 I added some folders and change structure a little
 
-To run: 'npm install && npm start'
-
-# installation
+# -Installation
 ## connect to server using ssh
 ## Install Dependencies
 - install nvm by following command
