@@ -129,6 +129,9 @@ video {
   z-index: 99;
   border-radius: 4px;
   background: rgb(105, 102, 102);
+  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg);
+  -moz-transform: rotateY(180deg);
 }
 
 #remote_videos .local-video-wrapper {

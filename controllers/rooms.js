@@ -166,8 +166,8 @@ exports.statusOfRoom = async function (req, res) {
     createdAt: room.createdAt,
     roomStatus: room.roomStatus,
     roomusers: resUsers,
-    roomHost: process.env.APP_URL + + room.roomId + "-" + room.hostGuest,
-    roomGuest: process.env.APP_URL + + room.roomId + "-" + room.hostGuest.split("").reverse().join(""),
+    roomHost: process.env.APP_URL + room.roomId + "-" + room.hostGuest,
+    roomGuest: process.env.APP_URL + room.roomId + "-" + room.hostGuest.split("").reverse().join(""),
   }
   console.log('resData', resData)
   res.status(200).send(resData);

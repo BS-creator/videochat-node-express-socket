@@ -63,6 +63,11 @@ To run: 'npm install && npm start'
   ```
   sudo service nginx restart
   ```
+- go into the root folder of the project and run app
+  ```
+  cd /project location
+  pm2 start bin/www
+  ```
 
 ## Visit on browser by typing your domain name on URL bar :)
   ```
