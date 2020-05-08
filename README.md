@@ -47,7 +47,7 @@ To run: 'npm install && npm start'
   server {
     listen         80 default_server;
     listen         [::]:80 default_server;
-    server_name    YOUR-DOMAIN-NAME;
+    server_name    roomapi.io;
     root           /usr/share/nginx/html;
   location / {
         proxy_pass http://127.0.0.1:3000;
@@ -69,3 +69,4 @@ To run: 'npm install && npm start'
   https://roomapi.io
   ```
 
+*** you need to point the IP address to your domain
