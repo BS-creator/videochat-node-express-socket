@@ -1,5 +1,5 @@
 export const CONFIG = {
-  SIGNALING_SERVER: "https://call.bemycall.com/",
+  SIGNALING_SERVER: "https://roomapi.io/",
   ICE_SERVERS: [
     { urls: ["stun:ws-turn2.xirsys.com"] },
     {
@@ -23,5 +23,5 @@ export const CONFIG = {
   },
   MUTE_AUDIO_BY_DEFAULT: false,
   // ServerURL: "http://localhost:3000/room",
-  ServerURL: "https://call.bemycall.com/room",
+  ServerURL: "https://roomapi.io/room",
 }
