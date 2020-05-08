@@ -64,5 +64,5 @@ To run: 'npm install && npm start'
   sudo service nginx restart
   ```
 
-## visit on browser by typing IP address 
+### Visit on browser by typing your domain name on URL bar :)
 
