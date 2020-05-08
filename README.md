@@ -74,7 +74,7 @@ To run: 'npm install && npm start'
   sudo ufw allow ssh
   sudo ufw allow http
   sudo ufw allow https
-
+  sudo ufw enable
   ```
 
 ## Visit on browser by typing your domain name on URL bar :)
