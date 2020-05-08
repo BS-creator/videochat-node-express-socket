@@ -30,7 +30,7 @@ To run: 'npm install && npm start'
   ```
 ## Install pm2 to run app in the background forever
   ```
-  sudo npm install pm2 -g
+  npm install pm2 -g
   ```
 
 ## Install & Configure nginx as a reverse proxy
@@ -67,6 +67,14 @@ To run: 'npm install && npm start'
   ```
   cd /project location
   pm2 start bin/www
+  ```
+## allow http, https and enable firewall
+- using ssh
+  ```
+  sudo ufw allow ssh
+  sudo ufw allow http
+  sudo ufw allow https
+
   ```
 
 ## Visit on browser by typing your domain name on URL bar :)
