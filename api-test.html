@@ -66,24 +66,22 @@
         screenshare: true,
         key: "1234567890",
         maxUser: 10,
-        // private: true,
-        // privateCode: 'abc',
+        private: true,
+        privateCode: 'abc',
         privateText: 'Please Enter PrivateCode',
-        watermarkUrl: '/images/watermark.png',
         hangupDisplayTextHost: "This Text will Display if the User Hangup the Call.",
         hangupDisplayTextGuest: "This Text will Display if the User Hangup the Call.",
         hangupCallToActionButtonHost: "Go to Site Button",
         hangupCallToActionButtonGuest: "Go to anything",
         hangupForceForwardHost: "https://www.dontdisplayjustforward.com",
         hangupForceForwardGuest: "https://www.dontdisplayjustforward.com",
-
-        returnParam: [
-          {
-            id: 1,
-            name: 'ester',
-            another: 'return'
-          }
-        ]
+        // returnParam: [
+        //   {
+        //     id: 1,
+        //     name: 'ester',
+        //     another: 'return'
+        //   }
+        // ]
       }
       // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
       $.post(sURL + '/createroom', req, function (response) {

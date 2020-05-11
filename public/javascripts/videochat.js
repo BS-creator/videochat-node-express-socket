@@ -17,8 +17,12 @@ var sharedVideoStream = null;      // Stores shared Stream
 var ServerURL = '';                // Stores Server URL. It same as self location . . .
 
 async function init() {
-
-  await $.post(CONFIG.ServerURL + "/get_room", { roomId: getRoomName(), hostGuest: getRoomName(true) },
+  var req = {
+    roomId: getRoomName(),
+    hostGuest: getRoomName(true),
+    privateHash: getParameterByName('hash')
+  }
+  await $.post(CONFIG.ServerURL + "/get_room", req,
     function (res) {
       DBconfig = res;
     }, 'json')
@@ -38,7 +42,7 @@ async function init() {
   if (!DBconfig.screenshare) {
     $(".screenShare").addClass('disabled');
   }
-  if (DBconfig.private && (DBconfig.privateHash == undefined || DBconfig.privateHash != getParameterByName('hash'))) {
+  if (DBconfig.private && (!DBconfig.privateHashChecked)) {
     window.localStorage.setItem('privateText', DBconfig.privateText);
     window.location.href = '/confirm?roomId=' + DBconfig.roomId + "-" + getRoomName(true)
   }
@@ -51,7 +55,7 @@ async function init() {
   $(".btn-call-end").click(function () {
     var data = {
       hangupDisplayTextHost: DBconfig.hangupDisplayTextHost,
-      hangupDisplayTextHost: DBconfig.hangupDisplayTextHost,
+      hangupDisplayTextGuest: DBconfig.hangupDisplayTextGuest,
       hangupCallToActionButtonHost: DBconfig.hangupCallToActionButtonHost,
       hangupCallToActionButtonGuest: DBconfig.hangupCallToActionButtonGuest,
       hangupForceForwardHost: DBconfig.hangupForceForwardHost,

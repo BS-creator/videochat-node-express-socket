@@ -46,6 +46,7 @@ exports.createRoom = async function (req, res) {
 exports.getRoom = function (req, res) {
   var room_id = req.body.roomId;
   var hostGuest = req.body.hostGuest;
+  var hashOfRoom = req.body.privateHash;
   console.log('getRoom', room_id)
   Room.findByRoomID(room_id).then(room => {
     // console.log(room_id, room)
@@ -55,7 +56,24 @@ exports.getRoom = function (req, res) {
     } else if (room.closedAt != null) {
       res.status(500).send({ message: "Room is closed" })
     } else {
-      res.status(200).send(room)
+      var resData = {
+        audio: room.audio,
+        video: room.video,
+        screenshare: room.screenshare,
+        private: room.private,
+        privateHashChecked: (room.privateHash == hashOfRoom) ? true : false,
+        privateText: room.privateText,
+        roomId: room.roomId,
+        hangupDisplayTextHost: room.hangupDisplayTextHost,
+        hangupDisplayTextGuest: room.hangupDisplayTextGuest,
+        hangupCallToActionButtonHost: room.hangupCallToActionButtonHost,
+        hangupCallToActionButtonGuest: room.hangupCallToActionButtonGuest,
+        hangupForceForwardHost: room.hangupForceForwardHost,
+        hangupForceForwardGuest: room.hangupForceForwardGuest,
+        watermarkUrl: room.watermarkUrl,
+        hostGuest: room.hostGuest,
+      }
+      res.status(200).send(resData)
     }
   })
 };
