@@ -1,195 +1,204 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
-<head>
-  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
-  <style>
-    iframe {
-      width: 400px;
-      height: 600px;
-      border: 1px solid black;
-    }
-
-    button {
-      width: 200px;
-      height: 80px;
-      cursor: pointer;
-      margin: 20px;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Hi Welcome !</h1>
-  <h3>This is the test page to check the videochat API works or not :)</h3>
-
-  <button onclick="create()">Create Room</button>
-  <button onclick="closeRoom()">Close Room</button>
-  <button onclick="textToRoom()">Text To Room</button>
-  <button onclick="playToRoom()">Play To Room</button>
-  <button onclick="status()">Get Status</button>
-  <button onclick="getOnlineRooms()">Get Online Rooms</button>
-  <button onclick="getOnlineUsers()">Get Online Users</button>
-  <button onclick="getStats()">Get From and To Stats</button>
-  <br /> <br /> <br />
-
-  <code id="result"></code>
-
-  <br><br><br>
-  <video style="visibility: hidden;" crossOrigin="anonymous" id="leftVideo" playsinline controls loop muted autoplay>
-    <source src="public/media/chrome.webm" type="video/webm" />
-  </video>
-
-  <script>
-    var leftVideo = document.getElementById('leftVideo');
-    // leftVideo.onplay = function () 
-    {
-      // Set the source of one <video> element to be a stream from another.
-      var stream = leftVideo.captureStream();
-      console.log(stream)
-      console.log(stream.getVideoTracks())
-    };
-
-
-    var sURL = "http://localhost:3000/api";
-    // var sURL = "https://roomapi.io/api";
-
-    var roomId = "TrTYwrYFj6vTyY3skuu3Nzcf98Dnu2tp";
-    var roomHash = "v73nFxuuOqnz8mFNIn40hAJCa3Puf0FX";
-    var privateCode = "";
-    var key = 1234567890
-
-    function create() {
-      var req = {
-        video: true,
-        audio: true,
-        screenshare: true,
-        key: "1234567890",
-        maxUser: 10,
-        private: true,
-        privateCode: 'abc',
-        privateText: 'Please Enter PrivateCode',
-        hangupDisplayTextHost: "This Text will Display if the User Hangup the Call.",
-        hangupDisplayTextGuest: "This Text will Display if the User Hangup the Call.",
-        hangupCallToActionButtonHost: "Go to Site Button",
-        hangupCallToActionButtonGuest: "Go to anything",
-        hangupForceForwardHost: "https://www.dontdisplayjustforward.com",
-        hangupForceForwardGuest: "https://www.dontdisplayjustforward.com",
-        // returnParam: [
-        //   {
-        //     id: 1,
-        //     name: 'ester',
-        //     another: 'return'
-        //   }
-        // ]
+  <head>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+    <style>
+      iframe {
+        width: 400px;
+        height: 600px;
+        border: 1px solid black;
       }
-      // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
-      $.post(sURL + '/createroom', req, function (response) {
-        roomId = response.roomId;
-        roomHash = response.roomHash
-        privateCode = response.privateCode
-        writeResponse(response);
-      })
-    }
 
-    function closeRoom() {
-      var req = {
-        roomId: roomId,
-        key: "1234567890",
-        roomHash: roomHash,
-        display: "Thank you for using.",
-        buttonCallToActionTextHost: "Back to Site",
-        buttonCallToActionTextGuest: "Back to Another Site",
-        buttonCallToActionHost: "https://www.mycustomerdomain.com/finished",
-        buttonCallToActionGuest: "https://www.mycustomerdomain.com/finished",
+      button {
+        width: 200px;
+        height: 80px;
+        cursor: pointer;
+        margin: 20px;
       }
-      $.post(sURL + '/closeroom', req, function (response) {
-        writeResponse(response);
-      })
-    }
+    </style>
+  </head>
 
-    function textToRoom() {
-      var req = {
-        roomId: roomId,
-        roomHash: roomHash,
-        key: "1234567890",
-        privateCode: 'abc',
-        displayHost: "Hi, Host. How are you?",
-        displayGuest: "Hi, Guest. How are you?",
-        seconds: 15,
-      }
-      $.post(sURL + '/texttoroom', req, function (response) {
-        writeResponse(response);
-      })
-    }
+  <body>
+    <h1>Hi Welcome !</h1>
+    <h3>This is the test page to check the videochat API works or not :)</h3>
 
-    function playToRoom() {
-      var req = {
-        roomId: roomId,
-        roomHash: roomHash,
-        privateCode: 'abc',
-        key: "1234567890",
-        playHost: "/media/horse.ogv",
-        playGuest: "/media/Alarm01.wav",
-        seconds: 15,
-      }
-      $.post(sURL + '/playtoroom', req, function (response) {
-        writeResponse(response);
-      })
-    }
+    <button onclick="create()">Create Room</button>
+    <button onclick="closeRoom()">Close Room</button>
+    <button onclick="textToRoom()">Text To Room</button>
+    <button onclick="playToRoom()">Play To Room</button>
+    <button onclick="status()">Get Status</button>
+    <button onclick="getOnlineRooms()">Get Online Rooms</button>
+    <button onclick="getOnlineUsers()">Get Online Users</button>
+    <button onclick="getStats()">Get From and To Stats</button>
+    <br />
+    <br />
+    <br />
 
-    function status() {
-      var req = {
-        roomId: roomId,
-        key: "1234567890",
-        roomHash: roomHash,
-      }
-      $.post(sURL + '/status', req, function (response) {
-        writeResponse(response);
-      })
-    }
+    <code id="result"></code>
 
-    function getOnlineRooms() {
-      var req = {
-        key: key,
-      }
-      $.post(sURL + '/intern/rooms', req, function (response) {
-        writeResponse(response);
-      })
-    }
-    function getOnlineUsers() {
-      var req = {
-        key: key,
-      }
-      $.post(sURL + '/intern/users', req, function (response) {
-        writeResponse(response);
-      })
-    }
-    function getStats() {
-      var req = {
-        key: key,
-        from: new Date(2020, 03, 28),
-        to: new Date(2020, 04, 02),
-      }
-      $.post(sURL + '/intern/stats', req, function (response) {
-        writeResponse(response);
-      })
-    }
-    function writeResponse(data) {
-      var code = JSON.stringify(data)
-      console.log(data)
-      document.getElementById("result").innerHTML = "{<br>";
-      for (const key in data) {
-        if (data.hasOwnProperty(key)) {
-          const element = data[key];
-          document.getElementById("result").innerHTML += "&nbsp;&nbsp;" + key + ": " + JSON.stringify(element) + ",<br>"
+    <br /><br /><br />
+    <video
+      style="visibility: hidden;"
+      crossorigin="anonymous"
+      id="leftVideo"
+      playsinline
+      controls
+      loop
+      muted
+      autoplay
+    >
+      <source src="public/media/chrome.webm" type="video/webm" />
+    </video>
 
+    <script>
+      var leftVideo = document.getElementById("leftVideo");
+      // leftVideo.onplay = function ()
+      {
+        // Set the source of one <video> element to be a stream from another.
+        var stream = leftVideo.captureStream();
+        console.log(stream);
+        console.log(stream.getVideoTracks());
+      }
+
+      // var sURL = "http://localhost:3000/api";
+      var sURL = "https://roomapi.io/api";
+
+      var roomId = "TrTYwrYFj6vTyY3skuu3Nzcf98Dnu2tp";
+      var roomHash = "v73nFxuuOqnz8mFNIn40hAJCa3Puf0FX";
+      var privateCode = "";
+      var key = 1234567890;
+
+      function create() {
+        var req = {
+          video: true,
+          audio: true,
+          screenshare: true,
+          key: "1234567890",
+          maxUser: 10,
+          private: true,
+          privateCode: "abc",
+          privateText: "Please Enter PrivateCode",
+          hangupDisplayTextHost:
+            "This Text will Display if the User Hangup the Call.",
+          hangupDisplayTextGuest:
+            "This Text will Display if the User Hangup the Call.",
+          hangupCallToActionButtonHost: "Go to Site Button",
+          hangupCallToActionButtonGuest: "Go to anything",
+          hangupForceForwardHost: "https://www.dontdisplayjustforward.com",
+          hangupForceForwardGuest: "https://www.dontdisplayjustforward.com",
+          // returnParam: [
+          //   {
+          //     id: 1,
+          //     name: 'ester',
+          //     another: 'return'
+          //   }
+          // ]
+        };
+        // $.post('create_room', { video: true, audio: true, max_user: 6 }, function (response) {
+        $.post(sURL + "/createroom", req, function (response) {
+          roomId = response.roomId;
+          roomHash = response.roomHash;
+          privateCode = response.privateCode;
+          writeResponse(response);
+        });
+      }
+
+      function closeRoom() {
+        var req = {
+          roomId: roomId,
+          key: "1234567890",
+          roomHash: roomHash,
+          display: "Thank you for using.",
+          buttonCallToActionTextHost: "Back to Site",
+          buttonCallToActionTextGuest: "Back to Another Site",
+          buttonCallToActionHost: "https://www.mycustomerdomain.com/finished",
+          buttonCallToActionGuest: "https://www.mycustomerdomain.com/finished",
+        };
+        $.post(sURL + "/closeroom", req, function (response) {
+          writeResponse(response);
+        });
+      }
+
+      function textToRoom() {
+        var req = {
+          roomId: roomId,
+          roomHash: roomHash,
+          key: "1234567890",
+          privateCode: "abc",
+          displayHost: "Hi, Host. How are you?",
+          displayGuest: "Hi, Guest. How are you?",
+          seconds: 15,
+        };
+        $.post(sURL + "/texttoroom", req, function (response) {
+          writeResponse(response);
+        });
+      }
+
+      function playToRoom() {
+        var req = {
+          roomId: roomId,
+          roomHash: roomHash,
+          privateCode: "abc",
+          key: "1234567890",
+          playHost: "/media/horse.ogv",
+          playGuest: "/media/Alarm01.wav",
+          seconds: 15,
+        };
+        $.post(sURL + "/playtoroom", req, function (response) {
+          writeResponse(response);
+        });
+      }
+
+      function status() {
+        var req = {
+          roomId: roomId,
+          key: "1234567890",
+          roomHash: roomHash,
+        };
+        $.post(sURL + "/status", req, function (response) {
+          writeResponse(response);
+        });
+      }
+
+      function getOnlineRooms() {
+        var req = {
+          key: key,
+        };
+        $.post(sURL + "/intern/rooms", req, function (response) {
+          writeResponse(response);
+        });
+      }
+      function getOnlineUsers() {
+        var req = {
+          key: key,
+        };
+        $.post(sURL + "/intern/users", req, function (response) {
+          writeResponse(response);
+        });
+      }
+      function getStats() {
+        var req = {
+          key: key,
+          from: new Date(2020, 03, 28),
+          to: new Date(2020, 04, 02),
+        };
+        $.post(sURL + "/intern/stats", req, function (response) {
+          writeResponse(response);
+        });
+      }
+      function writeResponse(data) {
+        var code = JSON.stringify(data);
+        console.log(data);
+        document.getElementById("result").innerHTML = "{<br>";
+        for (const key in data) {
+          if (data.hasOwnProperty(key)) {
+            const element = data[key];
+            document.getElementById("result").innerHTML +=
+              "&nbsp;&nbsp;" + key + ": " + JSON.stringify(element) + ",<br>";
+          }
         }
+        document.getElementById("result").innerHTML += "}";
       }
-      document.getElementById("result").innerHTML += "}"
-    }
-  </script>
-
-</body>
-
+    </script>
+  </body>
 </html>
