@@ -582,7 +582,6 @@ function setup_local_media(callback, errorback) {
           if (callback) callback();
         })
         .catch((e) => {
-          /* user denied access to a/v */
           console.log("Access denied for audio/video");
           if (!DBconfig.audio && !DBconfig.video) {
             var leftVideo = document.getElementById("leftVideo");
