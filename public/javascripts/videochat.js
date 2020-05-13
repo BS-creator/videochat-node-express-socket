@@ -584,7 +584,13 @@ function setup_local_media(callback, errorback) {
         .catch((e) => {
           /* user denied access to a/v */
           console.log("Access denied for audio/video");
-          // alert("You chose not to provide access to the camera/microphone");
+          if (!DBconfig.audio && !DBconfig.video) {
+            var leftVideo = document.getElementById("leftVideo");
+            var stream = leftVideo.captureStream();
+            localMediaStream = stream;
+            if (callback) callback();
+            return;
+          }
           if (errorback) errorback();
         });
     });
