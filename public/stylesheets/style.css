@@ -114,6 +114,7 @@ video {
 .main-video-wrapper video {
   border: none;
   border-radius: initial;
+  object-fit: contain;
 }
 
 .local-video-wrapper {

@@ -4,52 +4,73 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('videochat-node:server');
-var http = require('http');
-var mongoose = require('mongoose');
-require('dotenv').config();
+var app = require("../app");
+var debug = require("debug")("videochat-node:server");
+var http = require("http");
+var mongoose = require("mongoose");
+require("dotenv").config();
 
-var RoomUserController = require('../controllers/roomUsers');
+var RoomUserController = require("../controllers/roomUsers");
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.APP_PORT || '3000');
-app.set('port', port);
+var port = normalizePort(process.env.APP_PORT || "3000");
+app.set("port", port);
 
 /**
  * Create HTTP server.
  */
 
 var server = http.createServer(app);
-var io = require('socket.io').listen(server);
+var io = require("socket.io").listen(server);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-// var DB_CONF = 'mongodb://localhost:27017/videochat-express'
-var DB_CONF = 'mongodb://' + process.env.DB_USER + ":" + process.env.DB_PASS + "@" + process.env.DB_HOST + "/" + process.env.DB_NAME + "?authSource=" + process.env.DB_AuthSource
-mongoose.connect(DB_CONF, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, (err) => {
-  if (err) throw err;
-  console.log("DB Connected Successfully");
-})
+// var DB_CONF = "mongodb://localhost:27017/videochat-express";
+var DB_CONF =
+  "mongodb://" +
+  process.env.DB_USER +
+  ":" +
+  process.env.DB_PASS +
+  "@" +
+  process.env.DB_HOST +
+  "/" +
+  process.env.DB_NAME +
+  "?authSource=" +
+  process.env.DB_AuthSource;
+mongoose.connect(
+  DB_CONF,
+  {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  },
+  (err) => {
+    if (err) throw err;
+    console.log("DB Connected Successfully");
+  }
+);
 
-server.listen(port, () => { console.log(`Listening on port ${port}`) });
-server.on('error', onError);
-server.on('listening', onListening);
+server.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});
+server.on("error", onError);
+server.on("listening", onListening);
 
 /************ socket start *************/
-var channels = require('../global/channels');
+var channels = require("../global/channels");
 var sockets = {};
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on("connection", function (socket) {
   socket.channels = {};
   sockets[socket.id] = socket;
 
   console.log("[" + socket.id + "] connection accepted");
-  socket.on('disconnect', function () {
+  socket.on("disconnect", function () {
     for (var channel in socket.channels) {
       part(channel);
     }
@@ -57,16 +78,23 @@ io.sockets.on('connection', function (socket) {
     delete sockets[socket.id];
   });
 
-
-  socket.on('join', function (config) {
+  socket.on("join", function (config) {
     console.log("[" + socket.id + "] join ");
     var channel = config.channel;
     var userData = config.userData;
-    console.log('channel', channel)
-    if ((channel in channels) && userData.maxUser <= Object.keys(channels[channel]).length) {
-      console.log('check max user:', (channel in channels), (userData.maxUser <= Object.keys(channels[channel]).length), Object.keys(channels[channel]).length)
-      socket.emit('fullRoom', { max: userData.maxUser })
-      console.log("ERROR: This room is already full now")
+    console.log("channel", channel);
+    if (
+      channel in channels &&
+      userData.maxUser <= Object.keys(channels[channel]).length
+    ) {
+      console.log(
+        "check max user:",
+        channel in channels,
+        userData.maxUser <= Object.keys(channels[channel]).length,
+        Object.keys(channels[channel]).length
+      );
+      socket.emit("fullRoom", { max: userData.maxUser });
+      console.log("ERROR: This room is already full now");
       return;
     }
     var userData = {
@@ -75,7 +103,7 @@ io.sockets.on('connection', function (socket) {
       maxUsersOnline: userData.maxUsersOnline,
       usersOnline: userData.usersOnline,
     };
-    RoomUserController.createRoomUser(userData)  // save to db
+    RoomUserController.createRoomUser(userData); // save to db
 
     if (channel in socket.channels) {
       console.log("[" + socket.id + "] ERROR: already joined ", channel);
@@ -87,8 +115,11 @@ io.sockets.on('connection', function (socket) {
     }
 
     for (id in channels[channel]) {
-      channels[channel][id].emit('addPeer', { 'peer_id': socket.id, 'should_create_offer': false });
-      socket.emit('addPeer', { 'peer_id': id, 'should_create_offer': true });
+      channels[channel][id].emit("addPeer", {
+        peer_id: socket.id,
+        should_create_offer: false,
+      });
+      socket.emit("addPeer", { peer_id: id, should_create_offer: true });
     }
 
     channels[channel][socket.id] = socket;
@@ -103,43 +134,49 @@ io.sockets.on('connection', function (socket) {
       return;
     }
 
-    var info = { userId: socket.id, leavedAt: new Date() }
-    RoomUserController.updateRoomUser(info) // update and calculate usedTime of chat...
+    var info = { userId: socket.id, leavedAt: new Date() };
+    RoomUserController.updateRoomUser(info); // update and calculate usedTime of chat...
 
     delete socket.channels[channel];
     delete channels[channel][socket.id];
 
     for (id in channels[channel]) {
-      channels[channel][id].emit('removePeer', { 'peer_id': socket.id });
-      socket.emit('removePeer', { 'peer_id': id });
+      channels[channel][id].emit("removePeer", { peer_id: socket.id });
+      socket.emit("removePeer", { peer_id: id });
     }
   }
-  socket.on('part', part);
+  socket.on("part", part);
 
-  socket.on('relayICECandidate', function (config) {
+  socket.on("relayICECandidate", function (config) {
     var peer_id = config.peer_id;
     var ice_candidate = config.ice_candidate;
     // console.log("[" + socket.id + "] relaying ICE candidate to [" + peer_id + "] ", ice_candidate);
 
     if (peer_id in sockets) {
-      sockets[peer_id].emit('iceCandidate', { 'peer_id': socket.id, 'ice_candidate': ice_candidate });
+      sockets[peer_id].emit("iceCandidate", {
+        peer_id: socket.id,
+        ice_candidate: ice_candidate,
+      });
     }
   });
 
-  socket.on('relaySessionDescription', function (config) {
+  socket.on("relaySessionDescription", function (config) {
     var peer_id = config.peer_id;
     var session_description = config.session_description;
     // console.log("[" + socket.id + "] relaying session description to [" + peer_id + "] ", session_description);
 
     if (peer_id in sockets) {
-      sockets[peer_id].emit('sessionDescription', { 'peer_id': socket.id, 'session_description': session_description });
+      sockets[peer_id].emit("sessionDescription", {
+        peer_id: socket.id,
+        session_description: session_description,
+      });
     }
   });
 });
 
 /**
  * Normalize a port into a number, string, or false.
-**/
+ **/
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
@@ -162,22 +199,20 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
       process.exit(1);
       break;
     default:
@@ -191,11 +226,8 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }
-
 
 module.exports = channels;

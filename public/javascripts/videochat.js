@@ -211,8 +211,11 @@ async function init() {
     if (screenShareOn) {
       sharedVideoStream.getTracks().forEach((track) => {
         console.log("foreachtrack", track);
-        peer_connection.addTrack(track, localMediaStream);
+        peer_connection.addTrack(track, sharedVideoStream);
       });
+      var audioTrack = localMediaStream.getAudioTracks()[0];
+      console.log("audiotRack", audioTrack);
+      peer_connection.addTrack(audioTrack, sharedVideoStream);
     } else {
       localMediaStream.getTracks().forEach((track) => {
         console.log("foreachtrack", track);
