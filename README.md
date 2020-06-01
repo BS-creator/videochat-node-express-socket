@@ -1,7 +1,3 @@
-# videochat-node-express-socket
-Express default Project Structure
-I added some folders and change structure a little
-
 # -Installation
 ## connect to server using ssh
 ## Install Dependencies
