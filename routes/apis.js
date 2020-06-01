@@ -27,5 +27,10 @@ router.post('/intern/users', RoomController.getUsersOnline);
 /* POST: GET STATS BETWEEN FROM AND TO. */
 router.post('/intern/stats', RoomController.getStats);
 
+// get room Info by roomId, from js
+router.post('/get_room', RoomController.getRoom);
+
+// compare privateCode
+router.post('/comparePrivateCode', RoomController.comparePrivateCode);
 
 module.exports = router;

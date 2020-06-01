@@ -30,8 +30,8 @@ exports.createRoom = async function (req, res) {
         privateText: data.privateText,
         createdAt: data.createdAt,
         returnParam: data.returnParam,
-        roomHost: "https://call.bemycall.com/r/" + data.roomId + "-" + data.hostGuest,
-        roomGuest: "https://call.bemycall.com/r/" + data.roomId + "-" + data.hostGuest.split("").reverse().join(""),
+        roomHost: process.env.APP_URL + data.roomId + "-" + data.hostGuest,
+        roomGuest: process.env.APP_URL + data.roomId + "-" + data.hostGuest.split("").reverse().join(""),
       }
 
       res.status(201).send(resData);
@@ -46,16 +46,34 @@ exports.createRoom = async function (req, res) {
 exports.getRoom = function (req, res) {
   var room_id = req.body.roomId;
   var hostGuest = req.body.hostGuest;
-  console.log(room_id)
+  var hashOfRoom = req.body.privateHash;
+  console.log('getRoom', room_id)
   Room.findByRoomID(room_id).then(room => {
-    console.log(room_id, room)
+    // console.log(room_id, room)
     if (!room || (hostGuest != room.hostGuest && hostGuest != room.hostGuest.split("").reverse().join(""))) {
       res.status(500).send({ message: "Room doesn't exist" })
-      console.log(room)
+      // console.log(room)
     } else if (room.closedAt != null) {
       res.status(500).send({ message: "Room is closed" })
     } else {
-      res.status(200).send(room)
+      var resData = {
+        audio: room.audio,
+        video: room.video,
+        screenshare: room.screenshare,
+        private: room.private,
+        privateHashChecked: (room.privateHash == hashOfRoom) ? true : false,
+        privateText: room.privateText,
+        roomId: room.roomId,
+        hangupDisplayTextHost: room.hangupDisplayTextHost,
+        hangupDisplayTextGuest: room.hangupDisplayTextGuest,
+        hangupCallToActionButtonHost: room.hangupCallToActionButtonHost,
+        hangupCallToActionButtonGuest: room.hangupCallToActionButtonGuest,
+        hangupForceForwardHost: room.hangupForceForwardHost,
+        hangupForceForwardGuest: room.hangupForceForwardGuest,
+        watermarkUrl: room.watermarkUrl,
+        hostGuest: room.hostGuest,
+      }
+      res.status(200).send(resData)
     }
   })
 };
@@ -166,8 +184,8 @@ exports.statusOfRoom = async function (req, res) {
     createdAt: room.createdAt,
     roomStatus: room.roomStatus,
     roomusers: resUsers,
-    roomHost: "https://call.bemycall.com/r/" + room.roomId + "-" + room.hostGuest,
-    roomGuest: "https://call.bemycall.com/r/" + room.roomId + "-" + room.hostGuest.split("").reverse().join(""),
+    roomHost: process.env.APP_URL + room.roomId + "-" + room.hostGuest,
+    roomGuest: process.env.APP_URL + room.roomId + "-" + room.hostGuest.split("").reverse().join(""),
   }
   console.log('resData', resData)
   res.status(200).send(resData);

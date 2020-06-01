@@ -1,18 +1,17 @@
+import { CONFIG } from './config.js'
+
 $(document).ready(function () {
 
   var privateText = (localStorage.hasOwnProperty('privateText')) ? window.localStorage.getItem('privateText') : '';
   $("#privateText").text(privateText)
-
-  // var ServerURL = "http://localhost:3000/room";
-  var ServerURL = "https://call.bemycall.com/room";
   $("#go_room").click(function () {
     var pcode = $("#privateCode").val();
     var roomName = getParameterByName('roomId');
     let segs = roomName.split("-");
     var roomId = segs[0]
-    $.post(ServerURL + '/comparePrivateCode', { roomId, privateCode: pcode }, function (res) {
+    $.post(CONFIG.ServerURL + '/comparePrivateCode', { roomId, privateCode: pcode }, function (res) {
       // $("#error_p").text(res.message).show()
-      window.location.href = "/r/" + res.roomId + "-" + segs[1] + "?hash=" + res.privateHash
+      window.location.href = "/" + res.roomId + "-" + segs[1] + "?hash=" + res.privateHash
     }, 'json')
       .fail(function (err) {
         console.log(err)

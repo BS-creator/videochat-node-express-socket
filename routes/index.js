@@ -17,7 +17,7 @@ router.get('/room-closed', function (req, res, next) {
 });
 
 /* GET room page. */
-router.get('/r/:roomName', function (req, res, next) {
+router.get('/:roomName', function (req, res, next) {
   res.render('room', { title: req.params.roomName });
 });
 
